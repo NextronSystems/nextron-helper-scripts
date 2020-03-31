@@ -12,6 +12,10 @@ You can decide if you want to send the logs to a remote log server, write them t
 
 The script itself writes an extensive log named `thor-seed.log`. You can deactivate the log with the `-NoLog` parameter or a preset in the respective script section.
 
+## Screenshot
+
+![THOR Seed Screenshot](https://raw.githubusercontent.com/NextronSystems/nextron-helper-scripts/master/images/thor_seed_old_os.png "THOR Seed running with PowerShell 3 on Windows 2008 R2")
+
 ## Requirements
 
 - PowerShell version 3
@@ -118,6 +122,20 @@ path:
 "@
 ```
 
+## THOR Lite
+
+THOR Lite is a trimmed-down free version of our scanner THOR. Your can find more information and a download form [here](https://www.nextron-systems.com/thor-lite/). THOR Seed works with a THOR Lite package provided as ZIP archive on a web server. Make sure to add a valid THOR Lite license to that ZIP archive.
+
+The cutoms THOR Lite package can be used as follows: 
+
+```console
+thor-seed.ps1 -CustomUrl https://web1.internal/thor/thor10lite-with-lic.zip
+```
+
+Make sure to check the description on [preconfigured variables](#preconfigured-variables) and the YAML config templates.
+
+![THOR Seed running THOR Lite](https://raw.githubusercontent.com/NextronSystems/nextron-helper-scripts/master/images/thor_seed_thor_lite.png "THOR Seed running THOR Lite")
+
 ## Issues
 
 ### Custom THOR / THOR Lite Packages
@@ -167,7 +185,7 @@ The required files and directories are the following. You can safely remove all 
 
 Importan: The listing above does not include the license file, which is obviously also required.
 
-## Execution
+### Execution
 
 You may run the script as follows:
 
