@@ -19,7 +19,7 @@ The script itself writes an extensive log named `thor-seed.log`. You can deactiv
 ## Requirements
 
 - PowerShell version 3
-- 50 MB of disk space (temporarily)
+- 70 MB of temporary disk space
 - Network connection to a THOR source (ASGARD, ASGARD Cloud, Nextron Customer Portal, THOR/THOR Lite as ZIP on a web server)
 
 ## Use Cases
@@ -132,9 +132,15 @@ The cutoms THOR Lite package can be used as follows:
 thor-seed.ps1 -CustomUrl https://web1.internal/thor/thor10lite-with-lic.zip
 ```
 
+![THOR Seed running THOR Lite](https://raw.githubusercontent.com/NextronSystems/nextron-helper-scripts/master/images/thor_seed_thor_lite.png "THOR Seed running THOR Lite")
+
+## Custom THOR ZIP
+
+In order to prepare a custom package use a program folder, add a license, compress that folder and generate a ZIP archive. Provide that ZIP archive on a web server.
+
 Make sure to check the description on [preconfigured variables](#preconfigured-variables) and the YAML config templates.
 
-![THOR Seed running THOR Lite](https://raw.githubusercontent.com/NextronSystems/nextron-helper-scripts/master/images/thor_seed_thor_lite.png "THOR Seed running THOR Lite")
+![THOR Seed Custom Package](https://raw.githubusercontent.com/NextronSystems/nextron-helper-scripts/master/images/thor_seed_custom_zip.png "Prepare a custom THOR package with license")
 
 ## Issues
 
