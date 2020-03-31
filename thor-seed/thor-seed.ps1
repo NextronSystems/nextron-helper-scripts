@@ -126,6 +126,9 @@ param
 # Presets -------------------------------------------------------------
 # #####################################################################
 
+# Write local log file for THOR Seed script activity
+#[bool]$NoLog = $True
+
 # ASGARD Server
 #[string]$AsgardServer = "asgard.beta.nextron-systems.com"
 
@@ -147,24 +150,24 @@ module:
   - Rootkit
   - ShimCache
   - DNSCache 
-# - RegistryChecks
-# - ScheduledTasks
+#  - RegistryChecks
+#  - ScheduledTasks
   - FileScan
 # - Eventlog
 nofast: true       # Don't trottle the scan, even on single core systems
 # nocolor: true    # Don't colorize the output
 lookback: 3        # Log and Eventlog look back time in days
-cpulimit: 50       # Limit the CPU usage of the scan
+cpulimit: 70       # Limit the CPU usage of the scan
 sigma: true        # Activate Sigma scanning on Eventlogs
+# quick: true        # Quick scan mode
 # dumpscan: true   # Scan memory dump files found during Filescan
 # printshim: true  # Output all SHIMCache entries
 # nolog: true      # Don't write any file outputs (only makes sense when using SYSLOG)
 # rebase-dir: \\server\share  # redirect all file outputs to this location
-path:
-    - C:\Temp
-    - C:\Users\Public
+# path:
+#     - C:\Temp
+#     - C:\Users\Public
 "@
-
 
 # Global Variables ----------------------------------------------------
 $global:NoLog = $NoLog
