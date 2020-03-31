@@ -191,6 +191,12 @@ You can remove some folders to save disk space and reduce network load when runn
 
 Importan: The listing above does not include the license file, which is obviously also required.
 
+## Use Cases
+
+### Microsoft Defender ATP
+
+We use THOR Seed with [Microsoft Defender ATP](https://docs.microsoft.com/en-us/windows/security/threat-protection/microsoft-defender-atp/microsoft-defender-advanced-threat-protection) as described with a very early version in this [blog post](https://www.nextron-systems.com/2020/01/07/thor-integration-into-windows-defender-atp/).
+
 ## Helpful Hints
 
 ### Execution
