@@ -22,27 +22,33 @@ The script itself writes an extensive log named `thor-seed.log`. You can deactiv
 - 70 MB of temporary disk space
 - Network connection to a THOR source (ASGARD, ASGARD Cloud, Nextron Customer Portal, THOR/THOR Lite as ZIP on a web server)
 
-## Use Cases
+## THOR Sources
 
-From an on-premise ASGARD server
+THOR Seed retrieves the THOR program package from different locations:
+
+### From an on-premise ASGARD server
+
+For details on ASGARD see [ASGARD's product page](https://www.nextron-systems.com/asgard-management-center/).
 
 ```console
 thor-seed.ps1 -AsgardServer asgard1.internal
 ```
 
-From ASGARD cloud instance
+### From ASGARD cloud instance
 
 ```console
 thor-seed.ps1 -AsgardServer asgard23.cloud.nextron -ApiKey 12345678
 ```
 
-From Nextron customer portal
+### From Nextron customer portal
 
 ```console
 thor-seed.ps1 -UseCustomerPortal -ApiKey 12345678
 ```
 
-With you custom THOR or THOR Lite package
+### From a custom THOR or THOR Lite package 
+
+For details on how to create such a package, see [custom THOR package](#custom-thor-package).
 
 ```console
 thor-seed.ps1 -CustomUrl https://web1.internal/thor/mythor-pack.zip
@@ -134,21 +140,15 @@ thor-seed.ps1 -CustomUrl https://web1.internal/thor/thor10lite-with-lic.zip
 
 ![THOR Seed running THOR Lite](https://raw.githubusercontent.com/NextronSystems/nextron-helper-scripts/master/images/thor_seed_thor_lite.png "THOR Seed running THOR Lite")
 
-## Custom THOR ZIP
+## Custom THOR Package
 
-In order to prepare a custom package use a program folder, add a license, compress that folder and generate a ZIP archive. Provide that ZIP archive on a web server.
-
-Make sure to check the description on [preconfigured variables](#preconfigured-variables) and the YAML config templates.
+In order to prepare a custom package you have to repack the THOR package that you've downloaded. Extract it, add a license file (`.lic`) and then create a ZIP archive from that program folder.
 
 ![THOR Seed Custom Package](https://raw.githubusercontent.com/NextronSystems/nextron-helper-scripts/master/images/thor_seed_custom_zip.png "Prepare a custom THOR package with license")
 
-## Issues
+Make sure to check the description on [preconfigured variables](#preconfigured-variables) and the YAML config templates.
 
-### Custom THOR / THOR Lite Packages
-
-Provide the package with license. This typically means that you have to repack the THOR package that you've downloaded. Extract it, add a license file (`.lic`) and then create a ZIP archive from that program folder. You can remove some folders to save disk space and reduce network load when running the script on thousands of systems.
-
-The required files and directories are the following. You can safely remove all other files and directories.
+You can remove some folders to save disk space and reduce network load when running the script on thousands of systems. The required files and directories are the following. You can safely remove all other files and directories.
 
 ```console
 .
@@ -191,10 +191,23 @@ The required files and directories are the following. You can safely remove all 
 
 Importan: The listing above does not include the license file, which is obviously also required.
 
+## Helpful Hints
+
 ### Execution
 
-You may run the script as follows:
+If you get the following error message `cannot be loaded because the execution of scripts is disabled on this system` you may run the script as follows:
 
 ```console
 powershell.exe -ExecutionPolicy Bypass .\thor-seed.ps1 -CustomUrl https://my-webserver.internal/thor/thor-packed.zip
+```
+
+### Quick Web Server Setup
+
+To provide a THOR package for a quick PoC you could use Python's `http.server` module.
+```console
+workstation:/temp/thor user$ ls
+thorlite.zip
+workstation:/temp/thor user$ python3 -m http.server
+Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
+192.168.1.20 - - [31/Mar/2020 17:46:32] "GET /thorlite.zip HTTP/1.1" 200 -
 ```
