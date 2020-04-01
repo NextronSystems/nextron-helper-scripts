@@ -2,8 +2,8 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.6
-# Date Created: 31.03.2020  
+# Version: 0.7
+# Date Created: 01.04.2020  
 ################################################## 
  
 #Requires -Version 3
@@ -24,7 +24,9 @@
     .PARAMETER SyslogServer 
         Enter the server or IP address of your remote SYSLOG server to send the results to. 
     .PARAMETER OutputPath 
-        A switching parameter that does not accept any value, but rather is used to tell the function to open the path location where the file was downloaded to.  
+        A switching parameter that does not accept any value, but rather is used to tell the function to open the path location where the file was downloaded to.
+    .PARAMETER RandomDelay
+        A random delay in seconds before the scan starts. This is helpful when you start the script on thousands of end systems to avoid system (VM host) or network  (package retrieval) overload by distributing the load over a defined time range.
     .PARAMETER QuickScan 
         Perform a quick scan only. This reduces scan time by 80%, skipping "Eventlog" scan and checking the most relevant locations in "Filesystem" scan only. 
     .PARAMETER NoLog 
@@ -109,7 +111,12 @@ param
     [Parameter(HelpMessage='Output path to write all output files to (can be a local directory or UNC path to a file share on a server)')] 
         [ValidateNotNullOrEmpty()] 
         [Alias('OP')]    
-        [string]$OutputPath = $PSScriptRoot, 
+        [string]$OutputPath = $PSScriptRoot,
+
+    [Parameter(HelpMessage='Output path to write all output files to (can be a local directory or UNC path to a file share on a server)')] 
+        [ValidateNotNullOrEmpty()] 
+        [Alias('RD')]    
+        [string]$RandomDelay, 
 
     [Parameter(HelpMessage='Activates quick scan')] 
         [ValidateNotNullOrEmpty()] 
@@ -135,6 +142,9 @@ param
 # API Key
 #[string]$ApiKey = "YOUR API KEY"
 
+# Random Delay (added before the scan start to distribute the inital load)
+[int]$RandomDelay = 20
+
 # Custom URL with THOR package
 #[string]$CustomUrl = "https://internal-webserver1.intranet.local"
 
@@ -153,13 +163,14 @@ module:
 #  - RegistryChecks
 #  - ScheduledTasks
   - FileScan
+  - ProcessCheck
 # - Eventlog
 nofast: true       # Don't trottle the scan, even on single core systems
 # nocolor: true    # Don't colorize the output
 lookback: 3        # Log and Eventlog look back time in days
 cpulimit: 70       # Limit the CPU usage of the scan
 sigma: true        # Activate Sigma scanning on Eventlogs
-# quick: true        # Quick scan mode
+quick: true        # Quick scan mode
 # dumpscan: true   # Scan memory dump files found during Filescan
 # printshim: true  # Output all SHIMCache entries
 # nolog: true      # Don't write any file outputs (only makes sense when using SYSLOG)
@@ -225,7 +236,7 @@ function Write-Log {
         $Indicator = "[!]"
     } elseif ( $Level -eq "Error" ) {
         $Indicator = "[E]"
-    } elseif ( $Level -eq "Process" ) {
+    } elseif ( $Level -eq "Progress" ) {
         $Indicator = "[.]"
     } elseif ($Level -eq "Note" ) {
         $Indicator = "[i]"
@@ -269,6 +280,11 @@ Write-Log "Started thor-seed with PowerShell v$($PSVersionTable.PSVersion)"
 # Get THOR ------------------------------------------------------------
 # ---------------------------------------------------------------------
 try {
+    # Random Delay
+    $LocalDelay = Get-Random -Minimum 0 -Maximum $RandomDelay
+    Write-Log "Adding random delay to the scan start (max. $($RandomDelay)): sleeping for $($LocalDelay) seconds" -Level "Progress"
+    Start-Sleep -Seconds $LocalDelay
+
     # Presets
     # Temporary directory for the THOR package
     $ThorDirectory = New-TemporaryDirectory
@@ -310,9 +326,9 @@ try {
         }
         # Info Messages
         if ( $UseCustomerPortal ) {
-            Write-Log 'Attempting to download THOR from nextron customer portal, please wait ...' -Level "Process"
+            Write-Log 'Attempting to download THOR from nextron customer portal, please wait ...' -Level "Progress"
         } else {
-            Write-Log "Attempting to download THOR from $AsgardServer" -Level "Process"
+            Write-Log "Attempting to download THOR from $AsgardServer" -Level "Progress"
         } 
         Write-Log "Download URL: $($DownloadUrl)"
         # Request
@@ -341,7 +357,7 @@ try {
 
     # Unzip
     try {
-        Write-Log "Extracting THOR package" -Level "Process"
+        Write-Log "Extracting THOR package" -Level "Progress"
         Expand-File $TempPackage $ThorDirectory
     } catch {
         Write-Log "Error while expanding the THOR ZIP package $_" -Level "Error"  
@@ -401,7 +417,7 @@ try {
     if ( $UsePresetConfig -and $Config -eq "" ) {
         Write-Log 'Using preset config defined in script header due to $UsePresetConfig = True'
         $TempConfig = Join-Path $ThorDirectory "config.yml"
-        Write-Log "Writing temporary config to $($TempConfig)" -Level "Process"
+        Write-Log "Writing temporary config to $($TempConfig)" -Level "Progress"
         Out-File -FilePath $TempConfig -InputObject $PresetConfig -Encoding ASCII
         $Config = $TempConfig
     }
@@ -422,7 +438,7 @@ try {
     }
 
     # Run THOR
-    Write-Log "Starting THOR scan ..." -Level "Process"
+    Write-Log "Starting THOR scan ..." -Level "Progress"
     Write-Log "Command Line: $($ThorBinary) $($ScanParameters)"
     # With Arguments
     if ( $ScanParameters.Count -gt 0 ) {

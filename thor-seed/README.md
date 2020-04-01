@@ -80,6 +80,10 @@ Enter the server or IP address of your remote SYSLOG server to send the results 
 
 A switching parameter that does not accept any value, but rather is used to tell the function to open the path location where the file was downloaded to.  
 
+### -RandomDelay
+
+A random delay in seconds before the scan starts. This is helpful when you start the script on thousands of end systems to avoid system (VM host) or network  (package retrieval) overload by distributing the load over a defined time range.
+
 ### -QuickScan
 
 Perform a quick scan only. This reduces scan time by 80%, skipping "Eventlog" scan and checking the most relevant locations in "Filesystem" scan only.
