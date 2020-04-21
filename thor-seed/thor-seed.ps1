@@ -113,10 +113,10 @@ param
         [Alias('OP')]    
         [string]$OutputPath = $PSScriptRoot,
 
-    [Parameter(HelpMessage='Output path to write all output files to (can be a local directory or UNC path to a file share on a server)')] 
+    [Parameter(HelpMessage='Add a random sleep delay to the scan start to avoid all scripts starting at the exact same second')] 
         [ValidateNotNullOrEmpty()] 
         [Alias('RD')]    
-        [string]$RandomDelay, 
+        [int]$RandomDelay = 20, 
 
     [Parameter(HelpMessage='Activates quick scan')] 
         [ValidateNotNullOrEmpty()] 
@@ -140,13 +140,13 @@ param
 #[string]$AsgardServer = "asgard.beta.nextron-systems.com"
 
 # Use THOR Cloud
-[bool]$UseThorCloud = $True
+#[bool]$UseThorCloud = $True
 
 # API Key
 #[string]$ApiKey = "YOUR API KEY"
 
 # Random Delay (added before the scan start to distribute the inital load)
-[int]$RandomDelay = 20
+#[int]$RandomDelay = 20
 
 # Custom URL with THOR package
 #[string]$CustomUrl = "https://internal-webserver1.intranet.local"
@@ -191,7 +191,7 @@ $global:NoLog = $NoLog
 # No ASGARD server 
 if ( $Args.Count -eq 0 -and $AsgardServer -eq "" -and $UseThorCloud -eq $False -and $CustomUrl -eq "" ) {
     Get-Help $MyInvocation.MyCommand.Definition -Detailed
-    Write-Host -ForegroundColor Yellow 'Note: You must at least define an ASGARD server (-AsgardServer), use the Nextron portal (-UseThorCloud) with an API key (-ApiKey) or provide a custom URL to a THOR / THOR Lite ZIP package on a webserver (-CustomUrl)'
+    Write-Host -ForegroundColor Yellow 'Note: You must at least define an ASGARD server (-AsgardServer), use the Nextron cloud (-UseThorCloud) with an API key (-ApiKey) or provide a custom URL to a THOR / THOR Lite ZIP package on a webserver (-CustomUrl)'
     return
 }
 # THOR Cloud but no API key
