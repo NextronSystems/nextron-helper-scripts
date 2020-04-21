@@ -367,7 +367,7 @@ try {
             if ( $UseThorCloud ) { 
                 Write-Log "Note: you can find your API key here: https://portal.nextron-systems.com/"
             } else {
-                Write-Log "Note: you can find your API key here: https://$AsgardServer:8443/ui/user-settings#tab-apikey"
+                Write-Log "Note: you can find your API key here: https://$($AsgardServer):8443/ui/user-settings#tab-apikey"
             }
         }
         break
