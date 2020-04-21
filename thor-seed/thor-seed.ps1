@@ -362,10 +362,9 @@ try {
         Write-Log "The following error occurred: $_" -Level "Error"
         $Response = $_.Exception.Response
         # 401 Unauthorized
-        if ( [int]$Response.StatusCode -eq 401 ) { 
-            Write-Log "The server returned an 401 Unauthorized status code. Did you set an API key? (-ApiKey key)" -Level "Warning"
-            if ( $UseThorCloud
-     ) { 
+        if ( [int]$Response.StatusCode -eq 401 -or [int]$Response.StatusCode -eq 403 ) { 
+            Write-Log "The server returned an 40X status code. Did you set an API key? (-ApiKey key)" -Level "Warning"
+            if ( $UseThorCloud ) { 
                 Write-Log "Note: you can find your API key here: https://portal.nextron-systems.com/"
             } else {
                 Write-Log "Note: you can find your API key here: https://$AsgardServer:8443/ui/user-settings#tab-apikey"
