@@ -2,8 +2,8 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.7
-# Date Created: 01.04.2020  
+# Version: 0.8
+# Date Created: 21.04.2020  
 ################################################## 
  
 #Requires -Version 3
@@ -12,13 +12,13 @@
     .SYNOPSIS   
         The "thor-seed" script downloads THOR and executes it
     .DESCRIPTION 
-        The "thor-seed" script downloads THOR from an ASGARD instance, the Netxron customer portal or a custom URL and executes THOR on the local system writing log files or transmitting syslog messages to a remote system
+        The "thor-seed" script downloads THOR from an ASGARD instance, the Netxron cloud or a custom URL and executes THOR on the local system writing log files or transmitting syslog messages to a remote system
     .PARAMETER AsgardServer 
         Enter the server name or IP address of your ASGARD instance. 
-    .PARAMETER UseCustomerPortal 
-        Use the official Nextron customer portal instead of an ASGARD instance. 
+    .PARAMETER UseThorCloud 
+        Use the official Nextron cloud systems instead of an ASGARD instance. 
     .PARAMETER ApiKey 
-        API key used when connecting to Nextron's customer portal instead of an ASGARD instance.
+        API key used when connecting to Nextron's cloud service instead of an ASGARD instance.
     .PARAMETER CustomUrl 
         Allows you to define a custom URL from which the THOR package is retrieved. Make sure that the package contains the full program folder, provide it as ZIP archive and add valid licenses (Incident Response license, THOR Lite license). THOR Seed will automaticall find the THOR binaries in the extracted archive. 
     .PARAMETER SyslogServer 
@@ -82,10 +82,10 @@ param
         [Alias('AMC')]
         [string]$AsgardServer,  
 
-    [Parameter(HelpMessage="Use Nextron's customer portal instead of an ASGARD instance to download THOR and generate a license")] 
+    [Parameter(HelpMessage="Use Nextron's cloud instead of an ASGARD instance to download THOR and generate a license")] 
         [ValidateNotNullOrEmpty()] 
         [Alias('CP')]    
-        [switch]$UseCustomerPortal,
+        [switch]$UseThorCloud,
 
     [Parameter(HelpMessage="Use the following API key")] 
         [ValidateNotNullOrEmpty()] 
@@ -139,6 +139,9 @@ param
 # ASGARD Server
 #[string]$AsgardServer = "asgard.beta.nextron-systems.com"
 
+# Use THOR Cloud
+[bool]$UseThorCloud = $True
+
 # API Key
 #[string]$ApiKey = "YOUR API KEY"
 
@@ -171,6 +174,7 @@ lookback: 3        # Log and Eventlog look back time in days
 cpulimit: 70       # Limit the CPU usage of the scan
 sigma: true        # Activate Sigma scanning on Eventlogs
 quick: true        # Quick scan mode
+reduced: true      # Only show WARNING and ALERT level messages
 # dumpscan: true   # Scan memory dump files found during Filescan
 # printshim: true  # Output all SHIMCache entries
 # nolog: true      # Don't write any file outputs (only makes sense when using SYSLOG)
@@ -185,13 +189,13 @@ $global:NoLog = $NoLog
 
 # Show Help -----------------------------------------------------------
 # No ASGARD server 
-if ( $Args.Count -eq 0 -and $AsgardServer -eq "" -and $UseCustomerPortal -eq $False -and $CustomUrl -eq "" ) {
+if ( $Args.Count -eq 0 -and $AsgardServer -eq "" -and $UseThorCloud -eq $False -and $CustomUrl -eq "" ) {
     Get-Help $MyInvocation.MyCommand.Definition -Detailed
-    Write-Host -ForegroundColor Yellow 'Note: You must at least define an ASGARD server (-AsgardServer), use the Nextron portal (-UseCustomerPortal) with an API key (-ApiKey) or provide a custom URL to a THOR / THOR Lite ZIP package on a webserver (-CustomUrl)'
+    Write-Host -ForegroundColor Yellow 'Note: You must at least define an ASGARD server (-AsgardServer), use the Nextron portal (-UseThorCloud) with an API key (-ApiKey) or provide a custom URL to a THOR / THOR Lite ZIP package on a webserver (-CustomUrl)'
     return
 }
-# Customer Portal but no API key
-if ( $Args.Count -eq 0 -and $UseCustomerPortal -eq $True ) {
+# THOR Cloud but no API key
+if ( $UseThorCloud -eq $True -and $ApiKey -eq "" ) {
     Get-Help $MyInvocation.MyCommand.Definition -Detailed
     Write-Host -ForegroundColor Yellow 'Note: You must provide an API key via command line parameter -ApiKey or as preset value in the "presets" section of this PowerShell script.'
     return
@@ -277,6 +281,23 @@ $StartTime = $(get-date)
 Write-Log "Started thor-seed with PowerShell v$($PSVersionTable.PSVersion)"
 
 # ---------------------------------------------------------------------
+# Evaluation ----------------------------------------------------------
+# ---------------------------------------------------------------------
+# Hostname
+$Hostname = $env:COMPUTERNAME
+# Evaluate Architecture 
+$ThorArch = "64"
+if ( [System.Environment]::Is64BitOperatingSystem -eq $False ) {
+    $ThorArch = ""
+}
+# License Type
+$LicenseType = "server"
+$OsInfo = Get-CimInstance -ClassName Win32_OperatingSystem
+if ( $osInfo.ProductType -eq 1 ) { 
+    $LicenseType = "client"
+}
+
+# ---------------------------------------------------------------------
 # Get THOR ------------------------------------------------------------
 # ---------------------------------------------------------------------
 try {
@@ -291,32 +312,7 @@ try {
     $TempPackage = Join-Path $ThorDirectory "thor-package.zip"
 
     # Generate Download URL
-    # License Type
-    $LicenseType = "server"
-    $OsInfo = Get-CimInstance -ClassName Win32_OperatingSystem
-    if ( $osInfo.ProductType -eq 1 ) { 
-        $LicenseType = "client"
-    }
-    # Download Source
-    # Asgard Instance
-    if ( $AsgardServer -ne "" ) {
-        # Generate download URL 
-        $DownloadUrl = "https://$($AsgardServer):8443/api/v0/downloads/thor/thor10-win?hostname=$($env:COMPUTERNAME)&type=$($LicenseType)&iocs=%5B%22default%22%5D"
-    }
-    # Netxron Customer Portal
-    elseif ( $UseCustomerPortal ) {
-        # not yet available in customer portal API
-    } 
-    # Custom URL 
-    elseif ( $CustomUrl -ne "" ) {
-        $DownloadUrl = $CustomUrl
-    # 
-    } else {
-        Write-Log 'Download URL cannot be generated (select one of the three options: $AsgardServer, $UseCustomerPortal or $CustomUrl'
-        break
-    }
-
-    # Download
+    # Web Client 
     try {
         # Web Client
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -324,14 +320,40 @@ try {
         if ( $ApiKey ) { 
             $WebClient.Headers.add('Authorization',$ApiKey)
         }
-        # Info Messages
-        if ( $UseCustomerPortal ) {
-            Write-Log 'Attempting to download THOR from nextron customer portal, please wait ...' -Level "Progress"
-        } else {
+        # Proxy Support
+        $WebClient.Proxy = [System.Net.WebRequest]::DefaultWebProxy
+        $WebClient.Proxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials
+
+        # Download Source
+        # Asgard Instance
+        if ( $AsgardServer -ne "" ) {
             Write-Log "Attempting to download THOR from $AsgardServer" -Level "Progress"
+            # Generate download URL 
+            $DownloadUrl = "https://$($AsgardServer):8443/api/v0/downloads/thor/thor10-win?hostname=$($Hostname)&type=$($LicenseType)&iocs=%5B%22default%22%5D"
+        }
+        # Netxron Customer Portal
+        elseif ( $UseThorCloud ) {
+            Write-Log 'Attempting to download THOR from Nextron cloud portal, please wait ...' -Level "Progress"
+            $DownloadUrl = "https://cloud.nextron-systems.com/api/public/thor10"
+            # Parameters
+            $WebClient.Headers.add('X-OS', 'windows')
+            if ( $ThorArch -eq "64" ) {
+                $WebClient.Headers.add('X-Arch', 'amd64')
+            } else {
+                $WebClient.Headers.add('X-Arch', 'x86')
+            }
+            $WebClient.Headers.add('X-Token', $ApiKey)
+            $WebClient.Headers.add('X-Hostname', $Hostname)
         } 
+        # Custom URL 
+        elseif ( $CustomUrl -ne "" ) {
+            $DownloadUrl = $CustomUrl
+        } else {
+            Write-Log 'Download URL cannot be generated (select one of the three options: $AsgardServer, $UseThorCloud or $CustomUrl'
+            break
+        }
+        # Actual Download
         Write-Log "Download URL: $($DownloadUrl)"
-        # Request
         $WebClient.DownloadFile($DownloadUrl, $TempPackage)
         Write-Log "Successfully downloaded THOR package to $($TempPackage)"
     }
@@ -342,7 +364,8 @@ try {
         # 401 Unauthorized
         if ( [int]$Response.StatusCode -eq 401 ) { 
             Write-Log "The server returned an 401 Unauthorized status code. Did you set an API key? (-ApiKey key)" -Level "Warning"
-            if ( $UseCustomerPortal ) { 
+            if ( $UseThorCloud
+     ) { 
                 Write-Log "Note: you can find your API key here: https://portal.nextron-systems.com/"
             } else {
                 Write-Log "Note: you can find your API key here: https://$AsgardServer:8443/ui/user-settings#tab-apikey"
@@ -372,12 +395,6 @@ try {
 # Run THOR ------------------------------------------------------------
 # ---------------------------------------------------------------------
 try {
-    # Evaluate Architecture 
-    $ThorArch = "64"
-    if ( [System.Environment]::Is64BitOperatingSystem -eq $False ) {
-        $ThorArch = ""
-    }
-
     # Finding THOR binaries in extracted package
     Write-Log "Trying to find THOR binary in location $($ThorDirectory)" -Level "Progress"
     $ThorLocations = Get-ChildItem -Path $ThorDirectory -Recurse -Filter thor*.exe 
