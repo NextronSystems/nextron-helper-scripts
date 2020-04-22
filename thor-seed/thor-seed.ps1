@@ -2,8 +2,8 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.8
-# Date Created: 21.04.2020  
+# Version: 0.9
+# Date Created: 22.04.2020  
 ################################################## 
  
 #Requires -Version 3
@@ -17,8 +17,8 @@
         Enter the server name or IP address of your ASGARD instance. 
     .PARAMETER UseThorCloud 
         Use the official Nextron cloud systems instead of an ASGARD instance. 
-    .PARAMETER ApiKey 
-        API key used when connecting to Nextron's cloud service instead of an ASGARD instance.
+    .PARAMETER Token 
+        Download token used when connecting to Nextron's cloud service instead of an ASGARD instance.
     .PARAMETER CustomUrl 
         Allows you to define a custom URL from which the THOR package is retrieved. Make sure that the package contains the full program folder, provide it as ZIP archive and add valid licenses (Incident Response license, THOR Lite license). THOR Seed will automaticall find the THOR binaries in the extracted archive. 
     .PARAMETER SyslogServer 
@@ -32,17 +32,17 @@
     .PARAMETER NoLog 
         Do not write a log file in the current working directory of the PowerShell script named thor-seed.log. 
     .EXAMPLE
-        Download THOR from asgard1.intranet.local (API key isn't required in on-premise installations)
+        Download THOR from asgard1.intranet.local (download token isn't required in on-premise installations)
         
         thor-seed -AsgardServer asgard1.intranet.local
     .EXAMPLE
-        Download THOR from asgard1.cloud.net using an API key and send the log to a remote SYSLOG system
+        Download THOR from asgard1.cloud.net using an download token and send the log to a remote SYSLOG system
         
-        thor-seed -AsgardServer asgard1.intranet.local -ApiKey wWfC0A0kMziG7GRJ5XEcGdZKw3BrigavxAdw9C9yxJX -SyslogServer siem-collector1.intranet.local
+        thor-seed -AsgardServer asgard1.intranet.local -Token wWfC0A0kMziG7GRJ5XEcGdZKw3BrigavxAdw9C9yxJX -SyslogServer siem-collector1.intranet.local
     .EXAMPLE
-        Download THOR from asgard1.cloud.net using an API key and run a scan with a given config file
+        Download THOR from asgard1.cloud.net using an download token and run a scan with a given config file
         
-        thor-seed -AsgardServer asgard1.intranet.local -ApiKey wWfC0A0kMziG7GRJ5XEcGdZKw3BrigavxAdw9C9yxJX -Config config.yml
+        thor-seed -AsgardServer asgard1.intranet.local -Token wWfC0A0kMziG7GRJ5XEcGdZKw3BrigavxAdw9C9yxJX -Config config.yml
     .EXAMPLE
         Download THOR from asgard1.intranet.local and save all output files to a writable network share
         
@@ -52,7 +52,7 @@
          
         thor-seed -CustomUrl https://web1.server.local/thor/mythor-pack.zip
     .NOTES
-        You can set a static API key and ASGARD server in this file (see below in the parameters)
+        You can set a static download token and ASGARD server in this file (see below in the parameters)
 
         You can use YAML config files to pass parameters to the scan. Only the long form of the parameter is accepted. The contents of a config.yml could look like: 
         ```
@@ -87,10 +87,10 @@ param
         [Alias('CP')]    
         [switch]$UseThorCloud,
 
-    [Parameter(HelpMessage="Use the following API key")] 
+    [Parameter(HelpMessage="Set a download token (used with ASGARDs and THOR Cloud)")] 
         [ValidateNotNullOrEmpty()] 
-        [Alias('K')]
-        [string]$ApiKey,
+        [Alias('T')]
+        [string]$Token,
  
     [Parameter( 
         HelpMessage='Allows you to define a custom URL from which the THOR package is retrieved.')] 
@@ -139,11 +139,11 @@ param
 # ASGARD Server
 #[string]$AsgardServer = "asgard.beta.nextron-systems.com"
 
-# Use THOR Cloud
+# Use THOR Cloudselects only APT relevant directories for file system scan
 #[bool]$UseThorCloud = $True
 
-# API Key
-#[string]$ApiKey = "YOUR API KEY"
+# Download Token
+#[string]$Token = "YOUR DOWNLOAD TOKEN"
 
 # Random Delay (added before the scan start to distribute the inital load)
 #[int]$RandomDelay = 20
@@ -191,13 +191,13 @@ $global:NoLog = $NoLog
 # No ASGARD server 
 if ( $Args.Count -eq 0 -and $AsgardServer -eq "" -and $UseThorCloud -eq $False -and $CustomUrl -eq "" ) {
     Get-Help $MyInvocation.MyCommand.Definition -Detailed
-    Write-Host -ForegroundColor Yellow 'Note: You must at least define an ASGARD server (-AsgardServer), use the Nextron cloud (-UseThorCloud) with an API key (-ApiKey) or provide a custom URL to a THOR / THOR Lite ZIP package on a webserver (-CustomUrl)'
+    Write-Host -ForegroundColor Yellow 'Note: You must at least define an ASGARD server (-AsgardServer), use the Nextron cloud (-UseThorCloud) with an download token (-Token) or provide a custom URL to a THOR / THOR Lite ZIP package on a webserver (-CustomUrl)'
     return
 }
-# THOR Cloud but no API key
-if ( $UseThorCloud -eq $True -and $ApiKey -eq "" ) {
+# THOR Cloud but no download token
+if ( $UseThorCloud -eq $True -and $Token -eq "" ) {
     Get-Help $MyInvocation.MyCommand.Definition -Detailed
-    Write-Host -ForegroundColor Yellow 'Note: You must provide an API key via command line parameter -ApiKey or as preset value in the "presets" section of this PowerShell script.'
+    Write-Host -ForegroundColor Yellow 'Note: You must provide an download token via command line parameter -Token or as preset value in the "presets" section of this PowerShell script.'
     return
 }
 
@@ -317,8 +317,8 @@ try {
         # Web Client
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         $WebClient = New-Object System.Net.WebClient 
-        if ( $ApiKey ) { 
-            $WebClient.Headers.add('Authorization',$ApiKey)
+        if ( $Token ) { 
+            $WebClient.Headers.add('Authorization',$Token)
         }
         # Proxy Support
         $WebClient.Proxy = [System.Net.WebRequest]::DefaultWebProxy
@@ -342,7 +342,7 @@ try {
             } else {
                 $WebClient.Headers.add('X-Arch', 'x86')
             }
-            $WebClient.Headers.add('X-Token', $ApiKey)
+            $WebClient.Headers.add('X-Token', $Token)
             $WebClient.Headers.add('X-Hostname', $Hostname)
         } 
         # Custom URL 
@@ -363,11 +363,11 @@ try {
         $Response = $_.Exception.Response
         # 401 Unauthorized
         if ( [int]$Response.StatusCode -eq 401 -or [int]$Response.StatusCode -eq 403 ) { 
-            Write-Log "The server returned an 40X status code. Did you set an API key? (-ApiKey key)" -Level "Warning"
+            Write-Log "The server returned an 40X status code. Did you set an download token? (-Token key)" -Level "Warning"
             if ( $UseThorCloud ) { 
-                Write-Log "Note: you can find your API key here: https://portal.nextron-systems.com/"
+                Write-Log "Note: you can find your download token here: https://portal.nextron-systems.com/"
             } else {
-                Write-Log "Note: you can find your API key here: https://$($AsgardServer):8443/ui/user-settings#tab-apikey"
+                Write-Log "Note: you can find your download token here: https://$($AsgardServer):8443/ui/user-settings#tab-Token"
             }
         }
         break
