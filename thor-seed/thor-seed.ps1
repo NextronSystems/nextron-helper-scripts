@@ -2,8 +2,8 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.9
-# Date Created: 22.04.2020  
+# Version: 0.9.1
+# Date Created: 24.04.2020  
 ################################################## 
  
 #Requires -Version 3
@@ -155,8 +155,9 @@ param
 $UsePresetConfig = $True
 # Lines with '#' are commented and inactive. We decided to give you 
 # some examples for your convenience. You can see all possible command 
-# line parameters running `thor64.exe --help`. Only the long forms of the
-# parameters are accepted in the YAML config. 
+# line parameters running `thor64.exe --help` or on this web page: 
+# https://github.com/NextronSystems/nextron-helper-scripts/tree/master/thor-help 
+# Only the long forms of the parameters are accepted in the YAML config. 
 $PresetConfig = @"
 module:
 # - Autoruns
