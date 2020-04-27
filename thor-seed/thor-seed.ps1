@@ -2,8 +2,8 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.9.1
-# Date Created: 24.04.2020  
+# Version: 0.10.0
+# Date Created: 27.04.2020  
 ################################################## 
  
 #Requires -Version 3
@@ -183,6 +183,16 @@ reduced: true      # Only show WARNING and ALERT level messages
 # path:
 #     - C:\Temp
 #     - C:\Users\Public
+"@
+
+# False Positive Filters
+$UseFalsePositiveFilters = $True
+# The following new line separated false positive filters get 
+# applied to all log lines as regex values.
+$PresetFalsePositiveFilters = @"
+Could not get files of directory
+Signature file is older than 60 days
+\\Our-Custom-Software\\v1.[0-9]+\\
 "@
 
 # Global Variables ----------------------------------------------------
@@ -371,6 +381,12 @@ try {
                 Write-Log "Note: you can find your download token here: https://$($AsgardServer):8443/ui/user-settings#tab-Token"
             }
         }
+        if ( [int]$Response.StatusCode -eq 409 -and $UseThorCloud ) { 
+            Write-Log "You license pool has been exhausted (quota limit)" -Level "Warning"
+        }
+        if ( [int]$Response.StatusCode -ge 500 ) { 
+            Write-Log "THOR cloud internal error. Please report this error or try again later." -Level "Warning"
+        }
         break
     }
     catch { 
@@ -432,11 +448,20 @@ try {
         
     # Use Preset Config (instead of external .yml file)
     if ( $UsePresetConfig -and $Config -eq "" ) {
-        Write-Log 'Using preset config defined in script header due to $UsePresetConfig = True'
+        Write-Log 'Using preset config defined in script header due to $UsePresetConfig = $True'
         $TempConfig = Join-Path $ThorDirectory "config.yml"
         Write-Log "Writing temporary config to $($TempConfig)" -Level "Progress"
         Out-File -FilePath $TempConfig -InputObject $PresetConfig -Encoding ASCII
         $Config = $TempConfig
+    }
+
+    # Use Preset False Positive Filters
+    if ( $UseFalsePositiveFilters ) {
+        Write-Log 'Using preset false positive filters due to $UseFalsePositiveFilters = $True'
+        $ThorConfigDir = Join-Path $ThorDirectory "config"
+        $TempFPFilter = Join-Path $ThorConfigDir "false_positive_filters.cfg"
+        Write-Log "Writing temporary false positive filter file to $($TempFPFilter)" -Level "Progress"
+        Out-File -FilePath $TempFPFilter -InputObject $PresetFalsePositiveFilters -Encoding ASCII      
     }
 
     # Scan parameters 
