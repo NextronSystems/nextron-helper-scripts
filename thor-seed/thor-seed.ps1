@@ -143,7 +143,7 @@ param
 #[bool]$UseThorCloud = $True
 
 # Download Token
-#[string]$Token = ""
+#[string]$Token = "YOUR DOWNLOAD TOKEN"
 
 # Random Delay (added before the scan start to distribute the inital load)
 #[int]$RandomDelay = 20
