@@ -2,8 +2,8 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.10.0
-# Date Created: 27.04.2020  
+# Version: 0.11.0
+# Date Created: 29.04.2020  
 ################################################## 
  
 #Requires -Version 3
@@ -143,7 +143,7 @@ param
 #[bool]$UseThorCloud = $True
 
 # Download Token
-#[string]$Token = "YOUR DOWNLOAD TOKEN"
+#[string]$Token = ""
 
 # Random Delay (added before the scan start to distribute the inital load)
 #[int]$RandomDelay = 20
@@ -164,18 +164,22 @@ module:
   - Rootkit
   - ShimCache
   - DNSCache 
-#  - RegistryChecks
-#  - ScheduledTasks
+# - RegistryChecks
+  - ScheduledTasks
   - FileScan
-  - ProcessCheck
+# - ProcessCheck
 # - Eventlog
-nofast: true       # Don't trottle the scan, even on single core systems
+nosoft: true       # Don't trottle the scan, even on single core systems
 # nocolor: true    # Don't colorize the output
 lookback: 3        # Log and Eventlog look back time in days
 cpulimit: 70       # Limit the CPU usage of the scan
 sigma: true        # Activate Sigma scanning on Eventlogs
 quick: true        # Quick scan mode
-reduced: true      # Only show WARNING and ALERT level messages
+# reduced: true    # Only show WARNING and ALERT level messages
+nofserrors: true   # Don't print an error for non-existing directories selected in quick scan 
+nocsv: true        # Don't create CSV output file with all suspicious files
+noscanid: true     # Don't print a scan ID at the end of each line (only useful in SIEM import use cases)
+nothordb: true     # Don't create a local SQLite database for differential analysis of multiple scans
 # dumpscan: true   # Scan memory dump files found during Filescan
 # printshim: true  # Output all SHIMCache entries
 # nolog: true      # Don't write any file outputs (only makes sense when using SYSLOG)
@@ -279,7 +283,7 @@ function Write-Log {
 Write-Host "==========================================================="
 Write-Host "   ________ ______  ___    ____           __    ___        "
 Write-Host "  /_  __/ // / __ \/ _ \  / __/__ ___ ___/ /   /   \       "
-Write-Host "   / / / _  / /_/ / , _/ _\ \/ -_) -_) _  /   /_\T/_\      "
+Write-Host "   / / / _  / /_/ / , _/ _\ \/ -_) -_) _  /   /_\ /_\      "
 Write-Host "  /_/ /_//_/\____/_/|_| /___/\__/\__/\_,_/    \ / \ /      "
 Write-Host "                                               \   /       "
 Write-Host "  Nextron Systems, by Florian Roth              \_/        "
@@ -306,6 +310,22 @@ $LicenseType = "server"
 $OsInfo = Get-CimInstance -ClassName Win32_OperatingSystem
 if ( $osInfo.ProductType -eq 1 ) { 
     $LicenseType = "client"
+}
+
+# Fixing Certain Platform Environments --------------------------------
+$AutoDetectPlatform = ""
+# Microsoft Defender ATP - Live Response
+# $PSScriptRoot is empty
+if ( $OutputPath -eq "" ) {
+    # Setting output path to easily accessible system root, e.g. C:
+    $OutputPath = "$($env:ProgramData)\thor"
+    $AutoDetectPlatform = "MDATP"
+}
+
+# Output Info on Auto-Detection 
+if ( $AutoDetectPlatform -ne "" ) {
+    Write-Log "Auto Detect Platform: $($AutoDetectPlatform)"
+    Write-Log "Note: Some automatic changes have been applied"
 }
 
 # ---------------------------------------------------------------------
@@ -482,6 +502,16 @@ try {
     # Run THOR
     Write-Log "Starting THOR scan ..." -Level "Progress"
     Write-Log "Command Line: $($ThorBinary) $($ScanParameters)"
+    Write-Log "Writing output files to $($OutputPath)"
+    if (-not (Test-Path -Path $OutputPath) ) { 
+        Write-Log "Output path does not exists yet. Trying to create it ..." -Level "Progress"
+        try {
+            New-Item -ItemType Directory -Force -Path $OutputPath 
+            Write-Log "Output path $($OutputPath) successfully created."
+        } catch {
+            Write-Log "Output path set by $OutputPath variable doesn't exist and couldn't be created. You'll have to rely on the SYSLOG export or command line output only." -Level "Error"
+        }
+    }
     # With Arguments
     if ( $ScanParameters.Count -gt 0 ) {
         $p = Start-Process $ThorBinary -ArgumentList $ScanParameters -wait -NoNewWindow -PassThru
@@ -491,10 +521,30 @@ try {
         $p = Start-Process $ThorBinary -wait -NoNewWindow -PassThru
     }
 
+    # ERROR -----------------------------------------------------------
     if ( $p.ExitCode -ne 0 ) {
         Write-Log "THOR scan terminated with error code $($p.ExitCode)" -Level "Error" 
     } else {
+        # SUCCESS -----------------------------------------------------
         Write-Log "Successfully finished THOR scan"
+        # Output File Info
+        $OutputFiles = Get-ChildItem -Path "$($OutputPath)\*" -Include *_thor_*
+        if ( $OutputFiles.Length -gt 0 ) {
+            foreach ( $OutFile in $OutputFiles ) {
+                Write-Log "Generated output file: $($OutFile.FullName)"
+            }
+        }
+        # Give help depending on the auto-detected platform 
+        if ( $AutoDetectPlatform -eq "MDATP" -and $OutputFiles.Length -gt 0 ) {
+            Write-Log "Hint (ATP): You can use the following commands to retrieve the scan logs"
+            foreach ( $OutFile in $OutputFiles ) {
+                Write-Log "  getfile $($OutFile.FullName) -auto"
+            }
+            Write-Log "Hint (ATP): You can remove them from the end system by using"
+            foreach ( $OutFile in $OutputFiles ) {
+                Write-Log "  remediate file $($OutFile.FullName) -auto"
+            } 
+        }
     }
 } catch { 
     Write-Log "Unknown error during THOR scan $_" -Level "Error"   
