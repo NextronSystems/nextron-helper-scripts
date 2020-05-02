@@ -2,8 +2,8 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.11.0
-# Date Created: 29.04.2020  
+# Version: 0.12.0
+# Date Created: 02.05.2020  
 ################################################## 
  
 #Requires -Version 3
@@ -146,7 +146,7 @@ param
 #[string]$Token = "YOUR DOWNLOAD TOKEN"
 
 # Random Delay (added before the scan start to distribute the inital load)
-#[int]$RandomDelay = 20
+#[int]$RandomDelay = 1
 
 # Custom URL with THOR package
 #[string]$CustomUrl = "https://internal-webserver1.intranet.local"
@@ -158,9 +158,18 @@ $UsePresetConfig = $True
 # line parameters running `thor64.exe --help` or on this web page: 
 # https://github.com/NextronSystems/nextron-helper-scripts/tree/master/thor-help 
 # Only the long forms of the parameters are accepted in the YAML config. 
-$PresetConfig = @"
+
+# 3 PRESET CONFIGS
+
+# SELECTIVE
+# Preset template for a selective scan
+# Run time: 1 to 3 minutes
+# Specifics:
+#   - runs a reduced quick scan
+#   - skips Registry and Process memory checks
+$PresetConfig_Selective = @"
 module:
-# - Autoruns
+  - Autoruns
   - Rootkit
   - ShimCache
   - DNSCache 
@@ -168,26 +177,55 @@ module:
   - ScheduledTasks
   - FileScan
 # - ProcessCheck
-# - Eventlog
+  - Eventlog
 nosoft: true       # Don't trottle the scan, even on single core systems
-# nocolor: true    # Don't colorize the output
-lookback: 3        # Log and Eventlog look back time in days
-cpulimit: 70       # Limit the CPU usage of the scan
+lookback: 1        # Log and Eventlog look back time in days
 sigma: true        # Activate Sigma scanning on Eventlogs
 quick: true        # Quick scan mode
-# reduced: true    # Only show WARNING and ALERT level messages
 nofserrors: true   # Don't print an error for non-existing directories selected in quick scan 
 nocsv: true        # Don't create CSV output file with all suspicious files
 noscanid: true     # Don't print a scan ID at the end of each line (only useful in SIEM import use cases)
 nothordb: true     # Don't create a local SQLite database for differential analysis of multiple scans
-# dumpscan: true   # Scan memory dump files found during Filescan
-# printshim: true  # Output all SHIMCache entries
-# nolog: true      # Don't write any file outputs (only makes sense when using SYSLOG)
-# rebase-dir: \\server\share  # redirect all file outputs to this location
-# path:
-#     - C:\Temp
-#     - C:\Users\Public
 "@
+
+# QUICK
+# Preset template for a quick scan
+# Run time: 10 to 30 minutes
+# Specifics:
+#   - runs all default modules except Eventlog and a full file system scan
+#   - in quick mode only a highly relevant subset of folders gets scanned
+$PresetConfig_Quick = @"
+nosoft: true       # Don't trottle the scan, even on single core systems
+cpulimit: 70       # Limit the CPU usage of the scan
+quick: true        # Quick scan mode
+nofserrors: true   # Don't print an error for non-existing directories selected in quick scan 
+nocsv: true        # Don't create CSV output file with all suspicious files
+noscanid: true     # Don't print a scan ID at the end of each line (only useful in SIEM import use cases)
+nothordb: true     # Don't create a local SQLite database for differential analysis of multiple scans
+"@
+
+# FULL
+# Preset template for a complete scan
+# Run time: 40 minutes to 6 hours
+# Specifics:
+#   - runs all default modules
+#   - only scans the last 24h of the Eventlog
+#   - applies Sigma rules
+$PresetConfig_Full = @"
+nosoft: true       # Don't trottle the scan, even on single core systems
+lookback: 1        # Log and Eventlog look back time in days
+cpulimit: 70       # Limit the CPU usage of the scan
+sigma: true        # Activate Sigma scanning on Eventlogs
+nofserrors: true   # Don't print an error for non-existing directories selected in quick scan 
+nocsv: true        # Don't create CSV output file with all suspicious files
+noscanid: true     # Don't print a scan ID at the end of each line (only useful in SIEM import use cases)
+nothordb: true     # Don't create a local SQLite database for differential analysis of multiple scans
+"@
+
+# SELECT YOU CONFIG
+# Select your preset config
+# Choose between: $PresetConfig_Full, $PresetConfig_Quick, $PresetConfig_Selective
+$PresetConfig = $PresetConfig_Selective
 
 # False Positive Filters
 $UseFalsePositiveFilters = $True
@@ -291,7 +329,8 @@ Write-Host "                                                           "
 Write-Host "==========================================================="
 
 # Measure time
-$StartTime = $(get-date)
+$DateStamp = Get-Date -f yyyy-MM-dd
+$StartTime = $(Get-Date)
 
 Write-Log "Started thor-seed with PowerShell v$($PSVersionTable.PSVersion)"
 
@@ -528,7 +567,7 @@ try {
         # SUCCESS -----------------------------------------------------
         Write-Log "Successfully finished THOR scan"
         # Output File Info
-        $OutputFiles = Get-ChildItem -Path "$($OutputPath)\*" -Include *_thor_*
+        $OutputFiles = Get-ChildItem -Path "$($OutputPath)\*" -Include "$($Hostname)_thor_$($DateStamp)*"
         if ( $OutputFiles.Length -gt 0 ) {
             foreach ( $OutFile in $OutputFiles ) {
                 Write-Log "Generated output file: $($OutFile.FullName)"
