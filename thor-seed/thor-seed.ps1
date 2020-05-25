@@ -2,8 +2,8 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.12.0
-# Date Created: 02.05.2020  
+# Version: 0.13.0
+# Date Created: 25.05.2020  
 ################################################## 
  
 #Requires -Version 3
@@ -504,11 +504,11 @@ try {
     }
     $ThorBinaryName = "thor$($ThorArch)$($LiteAddon).exe"
     $ThorBinary = Join-Path $ThorBinDirectory $ThorBinaryName
-        
+   
     # Use Preset Config (instead of external .yml file)
     if ( $UsePresetConfig -and $Config -eq "" ) {
         Write-Log 'Using preset config defined in script header due to $UsePresetConfig = $True'
-        $TempConfig = Join-Path $ThorDirectory "config.yml"
+        $TempConfig = Join-Path $ThorBinDirectory "config.yml"
         Write-Log "Writing temporary config to $($TempConfig)" -Level "Progress"
         Out-File -FilePath $TempConfig -InputObject $PresetConfig -Encoding ASCII
         $Config = $TempConfig
@@ -517,7 +517,7 @@ try {
     # Use Preset False Positive Filters
     if ( $UseFalsePositiveFilters ) {
         Write-Log 'Using preset false positive filters due to $UseFalsePositiveFilters = $True'
-        $ThorConfigDir = Join-Path $ThorDirectory "config"
+        $ThorConfigDir = Join-Path $ThorBinDirectory "config"
         $TempFPFilter = Join-Path $ThorConfigDir "false_positive_filters.cfg"
         Write-Log "Writing temporary false positive filter file to $($TempFPFilter)" -Level "Progress"
         Out-File -FilePath $TempFPFilter -InputObject $PresetFalsePositiveFilters -Encoding ASCII      
