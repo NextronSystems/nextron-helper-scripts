@@ -159,7 +159,7 @@ $UsePresetConfig = $True
 # https://github.com/NextronSystems/nextron-helper-scripts/tree/master/thor-help 
 # Only the long forms of the parameters are accepted in the YAML config. 
 
-# 3 PRESET CONFIGS
+# PRESET CONFIGS
 
 # SELECTIVE
 # Preset template for a selective scan

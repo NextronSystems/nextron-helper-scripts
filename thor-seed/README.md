@@ -195,11 +195,30 @@ You can remove some folders to save disk space and reduce network load when runn
 
 Importan: The listing above does not include the license file, which is obviously also required.
 
-## Use Cases
-
-### Microsoft Defender ATP
+## Microsoft Defender ATP
 
 We use THOR Seed with [Microsoft Defender ATP](https://docs.microsoft.com/en-us/windows/security/threat-protection/microsoft-defender-atp/microsoft-defender-advanced-threat-protection) as described with a very early version in this [blog post](https://www.nextron-systems.com/2020/01/07/thor-integration-into-windows-defender-atp/).
+
+### Issue with Live Response Session in Microsoft Defender ATP
+
+There are some pitfalls that I'd like to highlight when running THOR in live response sessions. The first problem is the different command line. All parameters for THOR Seed have to be passed as string of a seperate parameter of the tool "run".
+
+```console
+run thor-seed.ps1 -parameters "-CustomUrl https://my.server.local/share/thor-pack.zip"
+```
+
+Another issue is the short timeout period for script runs within live response sessions. Until May 2020 it had been a timeout of 10 minutes. Since May 2020 the timeout has been increased to 30 minutes. Since full THOR scans take between 30 minutes and 4 hours, this timeout is still to small to run complete THOR scans. Microsoft plans to allow users set custom timeout values. Scripts executed via API have a 4 hour timeout.
+
+To work around that problem, I recommend using a quick scan (`--quick`) or a global module lookback (`--global-lookback --lookback X`). This should help reducing the scan runtime below 30 minutes. A quick scan skips the Eventlog module and scans only a set of ~25 blacklisted folders of the target system. A global module lookback (available with version 10.5 of THOR) instructs THOR to scan only elements changed or created within the last X days. You can use these params in THOR Seed' config section.
+
+```yml
+quick: true
+```
+
+```yml
+global-lookback: true
+lookback: 2  # scan only elements created or changed within the last 2 days
+```
 
 ## Helpful Hints
 
@@ -214,6 +233,7 @@ powershell.exe -ExecutionPolicy Bypass .\thor-seed.ps1 -CustomUrl https://my-web
 ### Quick Web Server Setup
 
 To provide a THOR package for a quick PoC you could use Python's `http.server` module.
+
 ```console
 workstation:/temp/thor user$ ls
 thorlite.zip
