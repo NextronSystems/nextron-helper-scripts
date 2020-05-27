@@ -72,21 +72,9 @@ API key used when connecting to Nextron's customer portal instead of an ASGARD i
 
 Allows you to define a custom URL from which the THOR package is retrieved. Make sure that the package contains the full program folder, provide it as ZIP archive and add valid licenses (Incident Response license, THOR Lite license). THOR Seed will automaticall find the THOR binaries in the extracted archive.
 
-### -SyslogServer
-
-Enter the server or IP address of your remote SYSLOG server to send the results to.
-
-### -OutputPath
-
-A switching parameter that does not accept any value, but rather is used to tell the function to open the path location where the file was downloaded to.  
-
 ### -RandomDelay
 
 A random delay in seconds before the scan starts. This is helpful when you start the script on thousands of end systems to avoid system (VM host) or network  (package retrieval) overload by distributing the load over a defined time range.
-
-### -QuickScan
-
-Perform a quick scan only. This reduces scan time by 80%, skipping "Eventlog" scan and checking the most relevant locations in "Filesystem" scan only.
 
 ### -NoLog
 
@@ -141,6 +129,8 @@ The cutoms THOR Lite package can be used as follows:
 ```console
 thor-seed.ps1 -CustomUrl https://web1.internal/thor/thor10lite-with-lic.zip
 ```
+
+Note that settings in the `$PresetConfig` section in THOR Seed overwrite the settings provided in the `.\config\thor.yml` file located in the ZIP package. Make sure to configure everything in the respective section in THOR Seed.
 
 ![THOR Seed running THOR Lite](https://raw.githubusercontent.com/NextronSystems/nextron-helper-scripts/master/images/thor_seed_thor_lite.png "THOR Seed running THOR Lite")
 

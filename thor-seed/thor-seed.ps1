@@ -2,8 +2,8 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.13.0
-# Date Created: 25.05.2020  
+# Version: 0.14.0
+# Date Created: 27.05.2020  
 ################################################## 
  
 #Requires -Version 3
@@ -21,14 +21,8 @@
         Download token used when connecting to Nextron's cloud service instead of an ASGARD instance.
     .PARAMETER CustomUrl 
         Allows you to define a custom URL from which the THOR package is retrieved. Make sure that the package contains the full program folder, provide it as ZIP archive and add valid licenses (Incident Response license, THOR Lite license). THOR Seed will automaticall find the THOR binaries in the extracted archive. 
-    .PARAMETER SyslogServer 
-        Enter the server or IP address of your remote SYSLOG server to send the results to. 
-    .PARAMETER OutputPath 
-        A switching parameter that does not accept any value, but rather is used to tell the function to open the path location where the file was downloaded to.
     .PARAMETER RandomDelay
-        A random delay in seconds before the scan starts. This is helpful when you start the script on thousands of end systems to avoid system (VM host) or network  (package retrieval) overload by distributing the load over a defined time range.
-    .PARAMETER QuickScan 
-        Perform a quick scan only. This reduces scan time by 80%, skipping "Eventlog" scan and checking the most relevant locations in "Filesystem" scan only. 
+        A random delay in seconds before the scan starts. This is helpful when you start the script on thousands of end systems to avoid system (VM host) or network (package retrieval) overload by distributing the load over a defined time range.
     .PARAMETER NoLog 
         Do not write a log file in the current working directory of the PowerShell script named thor-seed.log. 
     .EXAMPLE
@@ -36,17 +30,9 @@
         
         thor-seed -AsgardServer asgard1.intranet.local
     .EXAMPLE
-        Download THOR from asgard1.cloud.net using an download token and send the log to a remote SYSLOG system
+        Download THOR from THOR Cloud using a download token
         
-        thor-seed -AsgardServer asgard1.intranet.local -Token wWfC0A0kMziG7GRJ5XEcGdZKw3BrigavxAdw9C9yxJX -SyslogServer siem-collector1.intranet.local
-    .EXAMPLE
-        Download THOR from asgard1.cloud.net using an download token and run a scan with a given config file
-        
-        thor-seed -AsgardServer asgard1.intranet.local -Token wWfC0A0kMziG7GRJ5XEcGdZKw3BrigavxAdw9C9yxJX -Config config.yml
-    .EXAMPLE
-        Download THOR from asgard1.intranet.local and save all output files to a writable network share
-        
-        thor-seed -AsgardServer asgard1.intranet.local -OutputPath \\server\share
+        thor-seed -UseThorCloud -Token wWfC0A0kMziG7GRJ5XEcGdZKw3BrigavxAdw9C9yxJX
     .EXAMPLE
         Download THOR or THOR Lite package from a custom URL and execute it. (this also works with THOR Lite)
          
@@ -54,20 +40,10 @@
     .NOTES
         You can set a static download token and ASGARD server in this file (see below in the parameters)
 
-        You can use YAML config files to pass parameters to the scan. Only the long form of the parameter is accepted. The contents of a config.yml could look like: 
-        ```
-        module:
-            - Rootkit
-            - Mutex
-            - ShimCache
-            - Eventlog
-        nofast: true
-        nocolor: true
-        lookback: 3
-        syslog:
-            - siem1.local
-        ```
-        There is also a section in this script in which you can predefine a config. See the predefined variables  after the params section.
+        We recommend using the configuration sections in this script to adjust the scan settings. 
+        It includes presets for scan configs and false positive filters. 
+        See the $PresetConfig.. and $PresetFalsePositiveFilters below. 
+
 #>
 
 # #####################################################################
@@ -98,36 +74,33 @@ param
         [Alias('CU')]       
         [string]$CustomUrl, 
 
-    [Parameter(HelpMessage="Config YAML file to be used in the scan")] 
-        [ValidateNotNullOrEmpty()] 
-        [Alias('C')]    
-        [string]$Config, 
-
-    [Parameter(HelpMessage="Remote SYSLOG system that should receive THOR's log as SYSLOG messages")] 
-        [ValidateNotNullOrEmpty()] 
-        [Alias('SS')]    
-        [string]$SyslogServer, 
- 
-    [Parameter(HelpMessage='Output path to write all output files to (can be a local directory or UNC path to a file share on a server)')] 
-        [ValidateNotNullOrEmpty()] 
-        [Alias('OP')]    
-        [string]$OutputPath = $PSScriptRoot,
-
     [Parameter(HelpMessage='Add a random sleep delay to the scan start to avoid all scripts starting at the exact same second')] 
         [ValidateNotNullOrEmpty()] 
         [Alias('RD')]    
-        [int]$RandomDelay = 20, 
-
-    [Parameter(HelpMessage='Activates quick scan')] 
-        [ValidateNotNullOrEmpty()] 
-        [Alias('Q')]    
-        [switch]$QuickScan,
+        [int]$RandomDelay = 10, 
 
     [Parameter(HelpMessage='Deactivates log file for this PowerShell script (thor-run.log)')] 
         [ValidateNotNullOrEmpty()] 
         [Alias('NL')]    
         [switch]$NoLog
 )
+
+# Fixing Certain Platform Environments --------------------------------
+$AutoDetectPlatform = ""
+$OutputPath = $PSScriptRoot
+# Microsoft Defender ATP - Live Response
+# $PSScriptRoot is empty
+if ( $OutputPath -eq "" ) {
+    # Setting output path to easily accessible system root, e.g. C:
+    $OutputPath = "$($env:ProgramData)\thor"
+    $AutoDetectPlatform = "MDATP"
+}
+
+# Output Info on Auto-Detection 
+if ( $AutoDetectPlatform -ne "" ) {
+    Write-Log "Auto Detect Platform: $($AutoDetectPlatform)"
+    Write-Log "Note: Some automatic changes have been applied"
+}
 
 # #####################################################################
 # Presets -------------------------------------------------------------
@@ -168,6 +141,8 @@ $UsePresetConfig = $True
 #   - runs a reduced quick scan
 #   - skips Registry and Process memory checks
 $PresetConfig_Selective = @"
+# syslog: 10.0.0.1:514      # Syslog server to send the log data to
+rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
 module:
   - Autoruns
   - Rootkit
@@ -176,7 +151,7 @@ module:
 # - RegistryChecks
   - ScheduledTasks
   - FileScan
-# - ProcessCheck
+  - ProcessCheck
   - Eventlog
 nosoft: true       # Don't trottle the scan, even on single core systems
 lookback: 1        # Log and Eventlog look back time in days
@@ -351,22 +326,6 @@ if ( $osInfo.ProductType -eq 1 ) {
     $LicenseType = "client"
 }
 
-# Fixing Certain Platform Environments --------------------------------
-$AutoDetectPlatform = ""
-# Microsoft Defender ATP - Live Response
-# $PSScriptRoot is empty
-if ( $OutputPath -eq "" ) {
-    # Setting output path to easily accessible system root, e.g. C:
-    $OutputPath = "$($env:ProgramData)\thor"
-    $AutoDetectPlatform = "MDATP"
-}
-
-# Output Info on Auto-Detection 
-if ( $AutoDetectPlatform -ne "" ) {
-    Write-Log "Auto Detect Platform: $($AutoDetectPlatform)"
-    Write-Log "Note: Some automatic changes have been applied"
-}
-
 # ---------------------------------------------------------------------
 # Get THOR ------------------------------------------------------------
 # ---------------------------------------------------------------------
@@ -440,9 +399,15 @@ try {
                 Write-Log "Note: you can find your download token here: https://$($AsgardServer):8443/ui/user-settings#tab-Token"
             }
         }
+        # 400
+        if ( [int]$Response.StatusCode -eq 400 ) { 
+            Write-Log "This could be caused by a missing Download Token (check your ASGARD server's Settings section for the Global Download Token)" -Level "Warning"
+        }
+        # 409
         if ( [int]$Response.StatusCode -eq 409 -and $UseThorCloud ) { 
             Write-Log "You license pool has been exhausted (quota limit)" -Level "Warning"
         }
+        # 500
         if ( [int]$Response.StatusCode -ge 500 ) { 
             Write-Log "THOR cloud internal error. Please report this error or try again later." -Level "Warning"
         }
@@ -506,7 +471,8 @@ try {
     $ThorBinary = Join-Path $ThorBinDirectory $ThorBinaryName
    
     # Use Preset Config (instead of external .yml file)
-    if ( $UsePresetConfig -and $Config -eq "" ) {
+    $Config = ""
+    if ( $UsePresetConfig ) {
         Write-Log 'Using preset config defined in script header due to $UsePresetConfig = $True'
         $TempConfig = Join-Path $ThorBinDirectory "config.yml"
         Write-Log "Writing temporary config to $($TempConfig)" -Level "Progress"
@@ -525,15 +491,6 @@ try {
 
     # Scan parameters 
     [string[]]$ScanParameters = @()
-    if ( $QuickScan ) {
-        $ScanParameters += "--quick"
-    }
-    if ( $SyslogServer ) {
-        $ScanParameters += "-s $($SyslogServer)"
-    }
-    if ( $OutputPath ) { 
-        $ScanParameters += "-e $($OutputPath)"
-    }
     if ( $Config ) {
         $ScanParameters += "-t $($Config)"
     }
