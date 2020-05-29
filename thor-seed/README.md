@@ -20,7 +20,7 @@ The script itself writes an extensive log named `thor-seed.log`. You can deactiv
 
 - PowerShell version 3
 - 70 MB of temporary disk space
-- Network connection to a THOR source (ASGARD, ASGARD Cloud, Nextron Customer Portal, THOR/THOR Lite as ZIP on a web server)
+- Network connection to a THOR source (ASGARD, THOR Cloud, THOR/THOR Lite as ZIP on a web server)
 
 ## THOR Sources
 
@@ -34,16 +34,10 @@ For details on ASGARD see [ASGARD's product page](https://www.nextron-systems.co
 thor-seed.ps1 -AsgardServer asgard1.internal
 ```
 
-### From ASGARD cloud instance
+### From THOR Cloud
 
 ```console
-thor-seed.ps1 -AsgardServer asgard23.cloud.nextron -ApiKey 12345678
-```
-
-### From Nextron customer portal
-
-```console
-thor-seed.ps1 -UseCustomerPortal -ApiKey 12345678
+thor-seed.ps1 -UseThorCloud -ApiKey 12345678
 ```
 
 ### From a custom THOR or THOR Lite package 
@@ -60,13 +54,13 @@ thor-seed.ps1 -CustomUrl https://web1.internal/thor/mythor-pack.zip
 
 Enter the server name or IP address of your ASGARD instance.
 
-### -UseCustomerPortal
+### -UseThorCloud
 
-Use the official Nextron customer portal instead of an ASGARD instance. 
+Use the official Nextron THOR Cloud instead of an ASGARD instance. 
 
-### -ApiKey
+### -Token
 
-API key used when connecting to Nextron's customer portal instead of an ASGARD instance.
+Download token used when connecting to Nextron's customer portal or an ASGARD instance.
 
 ### -CustomUrl
 
@@ -93,30 +87,39 @@ The config files have a YAML format. It is easy to read and write. All command l
 $UsePresetConfig = $True
 # Lines with '#' are commented and inactive. We decided to give you 
 # some examples for your convenience. You can see all possible command 
-# line parameters running `thor64.exe --help`. Only the long forms of the
-# parameters are accepted in the YAML config.
-$PresetConfig = @"
+# line parameters running `thor64.exe --help` or on this web page: 
+# https://github.com/NextronSystems/nextron-helper-scripts/tree/master/thor-help 
+# Only the long forms of the parameters are accepted in the YAML config. 
+
+# PRESET CONFIGS
+
+# SELECTIVE
+# Preset template for a selective scan
+# Run time: 1 to 3 minutes
+# Specifics:
+#   - runs a reduced quick scan
+#   - skips Registry and Process memory checks
+$PresetConfig_Selective = @"
+# syslog: 10.0.0.1:514      # Syslog server to send the log data to
+rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
 module:
-# - Autoruns
+  - Autoruns
   - Rootkit
   - ShimCache
-  - DNSCache
+  - DNSCache 
 # - RegistryChecks
-# - ScheduledTasks
+  - ScheduledTasks
   - FileScan
-# - Eventlog
-nofast: true       # Don't trottle the scan, even on single core systems
-# nocolor: true    # Don't colorize the output
-lookback: 3        # Log and Eventlog look back time in days
-cpulimit: 50       # Limit the CPU usage of the scan
+  - ProcessCheck
+  - Eventlog
+nosoft: true       # Don't trottle the scan, even on single core systems
+lookback: 1        # Log and Eventlog look back time in days
 sigma: true        # Activate Sigma scanning on Eventlogs
-# dumpscan: true   # Scan memory dump files found during Filescan
-# printshim: true  # Output all SHIMCache entries
-# nolog: true      # Don't write any file outputs (only makes sense when using SYSLOG)
-# rebase-dir: \\server\share  # redirect all file outputs to this location
-path:
-    - C:\Temp
-    - C:\Users\Public
+quick: true        # Quick scan mode
+nofserrors: true   # Don't print an error for non-existing directories selected in quick scan 
+nocsv: true        # Don't create CSV output file with all suspicious files
+noscanid: true     # Don't print a scan ID at the end of each line (only useful in SIEM import use cases)
+nothordb: true     # Don't create a local SQLite database for differential analysis of multiple scans
 "@
 ```
 
