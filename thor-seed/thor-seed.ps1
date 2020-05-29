@@ -2,8 +2,8 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.14.0
-# Date Created: 27.05.2020  
+# Version: 0.14.1
+# Date Created: 29.05.2020  
 ################################################## 
  
 #Requires -Version 3
@@ -88,12 +88,15 @@ param
 # Fixing Certain Platform Environments --------------------------------
 $AutoDetectPlatform = ""
 $OutputPath = $PSScriptRoot
+
 # Microsoft Defender ATP - Live Response
-# $PSScriptRoot is empty
-if ( $OutputPath -eq "" ) {
-    # Setting output path to easily accessible system root, e.g. C:
-    $OutputPath = "$($env:ProgramData)\thor"
+# $PSScriptRoot is empty or contains path to Windows Defender
+if ( $OutputPath -eq "" -or $OutputPath.Contains("Windows Defender Advanced Threat Protection") ) {
     $AutoDetectPlatform = "MDATP"
+    # Setting output path to easily accessible system root, e.g. C:
+    if ( $OutputPath -eq "" ) { 
+        $OutputPath = "$($env:ProgramData)\thor"
+    }
 }
 
 # Output Info on Auto-Detection 
