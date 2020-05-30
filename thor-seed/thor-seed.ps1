@@ -139,42 +139,53 @@ $UsePresetConfig = $True
 
 # SELECTIVE
 # Preset template for a selective scan
-# Run time: 1 to 3 minutes
+# Run time: 5 to 30 minutes
 # Specifics:
 #   - runs a reduced quick scan
-#   - skips Registry and Process memory checks
 $PresetConfig_Selective = @"
-# syslog: 10.0.0.1:514      # Syslog server to send the log data to
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
 module:
   - Autoruns
   - Rootkit
   - ShimCache
   - DNSCache 
-# - RegistryChecks
+  - RegistryChecks
+  - ScheduledTasks
+  - FileScan
+  - ProcessCheck
+  - Eventlog
+nosoft: true           # Don't trottle the scan, even on single core systems
+lookback: 1            # Log and Eventlog look back time in days
+sigma: true            # Activate Sigma scanning on Eventlogs
+quick: true            # Quick scan mode
+nofserrors: true       # Don't print an error for non-existing directories selected in quick scan 
+nocsv: true            # Don't create CSV output file with all suspicious files
+noscanid: true         # Don't print a scan ID at the end of each line (only useful in SIEM import use cases)
+nothordb: true         # Don't create a local SQLite database for differential analysis of multiple scans
+# syslog: 10.0.0.1:514 # Syslog server to send the log data to
+"@
+
+# QUICK
+# Preset template for a quick scan
+# Run time: 3 to 10 minutes
+# Specifics:
+#   - runs all default modules except Eventlog and a full file system scan
+#   - in quick mode only a highly relevant subset of folders gets scanned
+#   - skips Registry checks (key with potential for persistence still get check in Autoruns module)
+$PresetConfig_Quick = @"
+rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
+module:
+  - Autoruns
+  - Rootkit
+  - ShimCache
+  - DNSCache 
+  # - RegistryChecks
   - ScheduledTasks
   - FileScan
   - ProcessCheck
   - Eventlog
 nosoft: true       # Don't trottle the scan, even on single core systems
 lookback: 1        # Log and Eventlog look back time in days
-sigma: true        # Activate Sigma scanning on Eventlogs
-quick: true        # Quick scan mode
-nofserrors: true   # Don't print an error for non-existing directories selected in quick scan 
-nocsv: true        # Don't create CSV output file with all suspicious files
-noscanid: true     # Don't print a scan ID at the end of each line (only useful in SIEM import use cases)
-nothordb: true     # Don't create a local SQLite database for differential analysis of multiple scans
-"@
-
-# QUICK
-# Preset template for a quick scan
-# Run time: 10 to 30 minutes
-# Specifics:
-#   - runs all default modules except Eventlog and a full file system scan
-#   - in quick mode only a highly relevant subset of folders gets scanned
-$PresetConfig_Quick = @"
-nosoft: true       # Don't trottle the scan, even on single core systems
-cpulimit: 70       # Limit the CPU usage of the scan
 quick: true        # Quick scan mode
 nofserrors: true   # Don't print an error for non-existing directories selected in quick scan 
 nocsv: true        # Don't create CSV output file with all suspicious files
@@ -190,6 +201,7 @@ nothordb: true     # Don't create a local SQLite database for differential analy
 #   - only scans the last 24h of the Eventlog
 #   - applies Sigma rules
 $PresetConfig_Full = @"
+rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
 nosoft: true       # Don't trottle the scan, even on single core systems
 lookback: 1        # Log and Eventlog look back time in days
 cpulimit: 70       # Limit the CPU usage of the scan
