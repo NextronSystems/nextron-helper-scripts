@@ -2,8 +2,8 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.14.1
-# Date Created: 29.05.2020  
+# Version: 0.14.2
+# Date Created: 30.05.2020  
 ################################################## 
  
 #Requires -Version 3
@@ -97,12 +97,6 @@ if ( $OutputPath -eq "" -or $OutputPath.Contains("Windows Defender Advanced Thre
     if ( $OutputPath -eq "" ) { 
         $OutputPath = "$($env:ProgramData)\thor"
     }
-}
-
-# Output Info on Auto-Detection 
-if ( $AutoDetectPlatform -ne "" ) {
-    Write-Log "Auto Detect Platform: $($AutoDetectPlatform)"
-    Write-Log "Note: Some automatic changes have been applied"
 }
 
 # #####################################################################
@@ -339,6 +333,12 @@ $LicenseType = "server"
 $OsInfo = Get-CimInstance -ClassName Win32_OperatingSystem
 if ( $osInfo.ProductType -eq 1 ) { 
     $LicenseType = "client"
+}
+
+# Output Info on Auto-Detection 
+if ( $AutoDetectPlatform -ne "" ) {
+    Write-Log "Auto Detect Platform: $($AutoDetectPlatform)"
+    Write-Log "Note: Some automatic changes have been applied"
 }
 
 # ---------------------------------------------------------------------
