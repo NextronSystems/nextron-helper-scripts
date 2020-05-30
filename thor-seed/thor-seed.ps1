@@ -198,7 +198,7 @@ $PresetConfig_Full = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
 nosoft: true       # Don't trottle the scan, even on single core systems
 lookback: 1        # Log and Eventlog look back time in days
-cpulimit: 70       # Limit the CPU usage of the scan
+# cpulimit: 70       # Limit the CPU usage of the scan
 sigma: true        # Activate Sigma scanning on Eventlogs
 nofserrors: true   # Don't print an error for non-existing directories selected in quick scan 
 nocsv: true        # Don't create CSV output file with all suspicious files
