@@ -136,6 +136,7 @@ $UsePresetConfig = $True
 # Run time: 5 to 30 minutes
 # Specifics:
 #   - runs a reduced quick scan
+# cloudconf: [!]PresetConfig_Selective [Balanced Scan] Performs a balanced scan with important elements, process, registry, eventlog, persistence checks (5 to 30 min) (use with Microsoft Defender ATP)
 $PresetConfig_Selective = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
 module:
@@ -166,6 +167,7 @@ nothordb: true         # Don't create a local SQLite database for differential a
 #   - runs all default modules except Eventlog and a full file system scan
 #   - in quick mode only a highly relevant subset of folders gets scanned
 #   - skips Registry checks (key with potential for persistence still get check in Autoruns module)
+# cloudconf: PresetConfig_Quick [Quick Scan] Performs a quick scan on processes, caches, persistence elements and selected highly relevant directories (3 to 10 min)
 $PresetConfig_Quick = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
 module:
@@ -194,6 +196,7 @@ nothordb: true     # Don't create a local SQLite database for differential analy
 #   - runs all default modules
 #   - only scans the last 24h of the Eventlog
 #   - applies Sigma rules
+# cloudconf: PresetConfig_Full [Full Scan] Performs a full disk scan with all modules (40 min to 6 hours) (unusable with Microsoft Defender ATP due to live response session script time limit)
 $PresetConfig_Full = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
 nosoft: true       # Don't trottle the scan, even on single core systems
