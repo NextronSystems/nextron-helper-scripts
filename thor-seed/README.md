@@ -70,9 +70,17 @@ Allows you to define a custom URL from which the THOR package is retrieved. Make
 
 A random delay in seconds before the scan starts. This is helpful when you start the script on thousands of end systems to avoid system (VM host) or network  (package retrieval) overload by distributing the load over a defined time range.
 
+### -OutputPath
+
+The output path is a custom directory to write all output files to (default is the script's directory). Output files include a text log, an HTML report and a CSV file for all filescan findings regarded as suspicious or malicious.
+
 ### -NoLog
 
 Do not write a log file in the current working directory of the PowerShell script named thor-seed.log.
+
+### -Debug
+
+Do not remove temporary files and show some debug outputs for debugging purposes.
 
 ## Preconfigured Variables
 

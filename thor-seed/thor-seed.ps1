@@ -2,8 +2,8 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.14.2
-# Date Created: 30.05.2020  
+# Version: 0.15.0
+# Date Created: 03.06.2020  
 ################################################## 
  
 #Requires -Version 3
@@ -23,8 +23,12 @@
         Allows you to define a custom URL from which the THOR package is retrieved. Make sure that the package contains the full program folder, provide it as ZIP archive and add valid licenses (Incident Response license, THOR Lite license). THOR Seed will automaticall find the THOR binaries in the extracted archive. 
     .PARAMETER RandomDelay
         A random delay in seconds before the scan starts. This is helpful when you start the script on thousands of end systems to avoid system (VM host) or network (package retrieval) overload by distributing the load over a defined time range.
+    .PARAMETER OutputPath 
+        Directory to write all output files to (default is script directory)
     .PARAMETER NoLog 
         Do not write a log file in the current working directory of the PowerShell script named thor-seed.log. 
+    .PARAMETER Debugging 
+        Do not remove temporary files and show some debug outputs for debugging purposes. 
     .EXAMPLE
         Download THOR from asgard1.intranet.local (download token isn't required in on-premise installations)
         
@@ -69,7 +73,7 @@ param
         [string]$Token,
  
     [Parameter( 
-        HelpMessage='Allows you to define a custom URL from which the THOR package is retrieved.')] 
+        HelpMessage='Allows you to define a custom URL from which the THOR package is retrieved')] 
         [ValidateNotNullOrEmpty()] 
         [Alias('CU')]       
         [string]$CustomUrl, 
@@ -79,10 +83,21 @@ param
         [Alias('RD')]    
         [int]$RandomDelay = 10, 
 
+    [Parameter( 
+        HelpMessage='Directory to write all output files to (default is script directory)')] 
+        [ValidateNotNullOrEmpty()] 
+        [Alias('OP')]       
+        [string]$OutputPath, 
+
     [Parameter(HelpMessage='Deactivates log file for this PowerShell script (thor-run.log)')] 
         [ValidateNotNullOrEmpty()] 
         [Alias('NL')]    
-        [switch]$NoLog
+        [switch]$NoLog,
+
+    [Parameter(HelpMessage='Enables debug output and skips cleanup at the end of the scan')] 
+        [ValidateNotNullOrEmpty()] 
+        [Alias('D')]    
+        [switch]$Debugging
 )
 
 # Fixing Certain Platform Environments --------------------------------
@@ -120,6 +135,10 @@ if ( $OutputPath -eq "" -or $OutputPath.Contains("Windows Defender Advanced Thre
 
 # Custom URL with THOR package
 #[string]$CustomUrl = "https://internal-webserver1.intranet.local"
+
+# Custom Output Path
+# Choose an output directory for all output files (log, HTML report)
+#[string]$OutputPath = "C:\Windows\Temp"
 
 # Predefined YAML Config
 $UsePresetConfig = $True
@@ -568,11 +587,13 @@ try {
 # Cleanup -------------------------------------------------------------
 # ---------------------------------------------------------------------
 try {
-    Write-Log "Cleaning up temporary directory with THOR package ..." -Level Process
-    # Delete THOR ZIP package
-    Remove-Item -Confirm:$False -Force -Recurse $TempPackage -ErrorAction Ignore
-    # Delete THOR Folder
-    Remove-Item -Confirm:$False -Recurse -Force $ThorDirectory -ErrorAction Ignore
+    if ( $Debugging -eq $False ) {
+        Write-Log "Cleaning up temporary directory with THOR package ..." -Level Process
+        # Delete THOR ZIP package
+        Remove-Item -Confirm:$False -Force -Recurse $TempPackage -ErrorAction Ignore
+        # Delete THOR Folder
+        Remove-Item -Confirm:$False -Recurse -Force $ThorDirectory -ErrorAction Ignore
+    }
 } catch {
     Write-Log "Cleanup of temp directory $($ThorDirectory) failed. $_" -Level "Error"
 }
