@@ -228,6 +228,27 @@ noscanid: true     # Don't print a scan ID at the end of each line (only useful 
 nothordb: true     # Don't create a local SQLite database for differential analysis of multiple scans
 "@
 
+# Sigma Only
+# Preset template for a pure Sigma scan
+# Run time: highly depends on local Eventlog sizes 
+# (use lookback to scan only the last X days)
+# Specifics:
+#   - runs Eventlog module
+#   - applies Sigma rules
+# cloudconf: PresetConfig_Sigma [Sigma Only Scan] Performs a scan with 600+ included Sigma rules on the local Eventlog (5 min to 2 hours; depends on local Eventlog size)
+$PresetConfig_Sigma = @"
+rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
+module:
+  - Eventlog
+sigma: true        # Activate Sigma scanning on Eventlogs
+# lookback: 3      # Log and Eventlog look back time in days
+nosoft: true       # Don't trottle the scan, even on single core systems
+nofserrors: true   # Don't print an error for non-existing directories selected in quick scan 
+nocsv: true        # Don't create CSV output file with all suspicious files
+noscanid: true     # Don't print a scan ID at the end of each line (only useful in SIEM import use cases)
+nothordb: true     # Don't create a local SQLite database for differential analysis of multiple scans
+"@
+
 # SELECT YOU CONFIG
 # Select your preset config
 # Choose between: $PresetConfig_Full, $PresetConfig_Quick, $PresetConfig_Selective
