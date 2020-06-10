@@ -571,12 +571,12 @@ try {
         if ( $AutoDetectPlatform -eq "MDATP" -and $OutputFiles.Length -gt 0 ) {
             Write-Log "Hint (ATP): You can use the following commands to retrieve the scan logs"
             foreach ( $OutFile in $OutputFiles ) {
-                Write-Log "  getfile $($OutFile.FullName) -auto"
+                Write-Log "  getfile `"$($OutFile.FullName)`" -auto"
             }
-            Write-Log "Hint (ATP): You can remove them from the end system by using"
-            foreach ( $OutFile in $OutputFiles ) {
-                Write-Log "  remediate file $($OutFile.FullName) -auto"
-            } 
+            #Write-Log "Hint (ATP): You can remove them from the end system by using"
+            #foreach ( $OutFile in $OutputFiles ) {
+            #    Write-Log "  remediate file `"$($OutFile.FullName)`" -auto"
+            #} 
         }
     }
 } catch { 
