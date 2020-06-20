@@ -4,17 +4,17 @@ THOR APT Scanner Scan Parameters
 
 ## Flags for Scan Options
 ```
+      -- uint                       Create at most this many process dumps (default 10)
       --alldrives                   (Windows Only) Scan all local drives, including network drives and ROM drives (default: only the system drive)
       --allhds                      (Windows Only) Scan all local hard drives (default: only the system drive)
-      --asgard string               Request a license from the given asgard server
       --ca strings                  Root CA for host certificate verification during TLS handshakes
       --cross-platform              Apply IOCs with path separators platform independently.
+      --dump-procs                  Generate process dumps for suspicious or malicious processes
   -f, --epoch strings               Specify days with attacker activity. Files created/modified on these days will receive an extra score. Example: -f 2009-10-09 -f 2009-10-10
       --epochscore int              Score to add for files that were created/modified on days with attacker activity (see --epoch parameter) (default 35)
   -n, --eventlog-target strings     Scan specific Eventlogs (e.g. 'Security' or 'Microsoft-Windows-Sysmon/Operational') (default: the most important security logs are scanned)
+      --generate-config             Print a YAML config from the given parameters and exit
       --insecure                    Skip TLS host verification (insecure)
-  -q, --license-path string         Path containing the THOR license (default is application directory)
-      --lookback int                Specify how many past days shall be analyzed from the system logs. 0 means no limit (default 0)
       --max_file_size int           Max. file size to check (larger files are ignored). Increasing this limit will also increase memory usage of THOR. (default 4500000)
       --max_file_size_intense int   Max. file size to check in intense mode. See --intense and --max_file_size. (default 30000000)
       --max_log_lines int           Maximum amount of lines to check in a log file before skipping the remaining lines (default 1000000)
@@ -22,9 +22,8 @@ THOR APT Scanner Scan Parameters
       --nodoublecheck               Don't check whether another THOR instance is running (e.g. in Lab use cases when several mounted images are scanned simultaneously on a single system)
       --noimphash                   Do not calculate imphash for suspicious EXE files (Windows only)
   -p, --path strings                Scan a specific file path. Define multiple paths by specifying this option multiple times. Append ':NOWALK' to the path for non-recursive scanning (default: only the system drive)
-      --portal-contracts ints       Use these contracts for license generation. If no contract is specified, the portal selects a contract by itself. See --portal-key. (default [13,14])
-      --portal-key string           Get a license for this host from portal.nextron-systems.com using this API Key. (default "34dh78I02Py8dCg9RKKXNRdCCZc27JpQuPxfnPQEQo8")
-      --portal-nonewlic             Only use an existing license from the portal. If none exists, exit. See --portal-key.
+      --print-signatures            Show THOR Signatures and exit
+      --procdump-dir string         Store process dumps of suspicious processes in this directory (default "/var/lib/thor")
       --process ints                Process IDs to be scanned. Define multiple processes by specifying this option multiple times (default: all processes)
   -t, --template string             Process default scan parameters from this YAML file
       --version                     Show THOR version and exit
@@ -32,14 +31,18 @@ THOR APT Scanner Scan Parameters
 
 ## Flags for Scan Modes
 ```
-      --diff      Skip all elements that were present during the last scan run (Currently applies to modules: Filesystem, Registry, Eventlog)
-      --fsonly    Scan only the file system, disable resource checks and quick mode, activate intense mode, disable ThorDB and apply IOCs platform independently.
-                  This option scans all drives by default, but is often used with -p to scan only a single path.
-      --intense   Disable soft mode, activate dump file analysis, MFT analysis and sigma rules, and don't skip registry keys with less relevance.
-                  WARNING: This scan mode performs tasks that affect systems stability. Do not use this mode in live scanning unless you accept the risk.
-      --quick     Skip the Eventlog, Firewall, Profiles and Hotfixes modules, don't scan log files, EVTX files, or web directories from process handles and select only a set of highly relevant directories for file system scan
-      --soft      Skip CPU and RAM intensive modules (Mutexes, Firewall, Logons, Network sessions and shares, LSA sessions, open files, hosts file), don't decompress executables and doesn't perform a DoublePulsar backdoor check, lower max CPU usage to 70% and set low priority for THOR.
-                  This mode activates automatically on systems with 1 CPU core or less than 1024 MB RAM.
+      --diff              Set lookback time (see --lookback) for each module to the last time the module ran successfully and activates --all-module-lookback.
+                          Effectively, this means that only elements that changed since the last scan are examined.
+      --fsonly            Scan only the file system, disable resource checks and quick mode, activate intense mode, disable ThorDB and apply IOCs platform independently.
+                          This option scans all drives by default, but is often used with -p to scan only a single path.
+      --global-lookback   Apply Lookback to Filesystem, Services and Registry as well (in addition to the Event logs). See also --lookback.
+                          Warning: Timestomping or similar methods of antivirus evasion may result in elements not being examined.
+      --intense           Disable soft mode, activate dump file analysis, MFT analysis and sigma rules, and don't skip registry keys with less relevance.
+                          WARNING: This scan mode performs tasks that affect systems stability. Do not use this mode in live scanning unless you accept the risk.
+      --lookback int      Specify how many past days shall be analyzed. Event log entries from before this point will be ignored. 0 means no limit (default 0).
+      --quick             Skip the Eventlog, Firewall, Profiles and Hotfixes modules, don't scan log files, EVTX files, or web directories from process handles and select only a set of highly relevant directories for file system scan
+      --soft              Skip CPU and RAM intensive modules (Mutexes, Firewall, Logons, Network sessions and shares, LSA sessions, open files, hosts file), don't decompress executables and doesn't perform a DoublePulsar backdoor check, lower max CPU usage to 70% and set low priority for THOR.
+                          This mode activates automatically on systems with 1 CPU core or less than 1024 MB RAM.
 ```
 
 ## Flags for Resource Options
@@ -62,10 +65,22 @@ THOR APT Scanner Scan Parameters
 ```
       --dropdelete                 Delete all files dropped to the drop zone after the scan.
       --dropzone                   Watch and scan all files dropped to a certain directory (which must be passed with -p). Disable resource checks and quick mode, activate intense mode, disable ThorDB and apply IOCs platform independently.
+      --full-proc-integrity        Increase sensitivity for process impersonation detection. Likely to cause false positives, but also better at detecting real threats.
+      --image-chunk-size uint      Scan image / dump files in chunks of this size (default 12000000)
   -m, --image_file string          Scan only the given single (memory) image / dump file
   -r, --restore_directory string   Restore files found during the deep dive to the given folder
       --restore_score int          Restore only files with a match score higher than the given value. (default 50)
       --showdeleted                Show deleted files found in the MFT as 'info' messages.
+```
+
+## Flags for License Retrieval
+```
+      --asgard string           Request a license from the given asgard server
+  -q, --license-path string     Path containing the THOR license (default is application directory)
+      --portal-contracts ints   Use these contracts for license generation. If no contract is specified, the portal selects a contract by itself. See --portal-key. (default [13,14])
+      --portal-key string       Get a license for this host from portal.nextron-systems.com using this API Key.
+                                This feature is only supported for host-based server / workstation contracts. (default "34dh78I02Py8dCg9RKKXNRdCCZc27JpQuPxfnPQEQo8")
+      --portal-nonewlic         Only use an existing license from the portal. If none exists, exit. See --portal-key.
 ```
 
 ## Flags for Active Modules
@@ -90,6 +105,7 @@ THOR APT Scanner Scan Parameters
       --nonetworksessions   Do not analyze network sessions
       --nonetworkshares     Do not analyze network shares
       --noopenfiles         Do not analyse opened files
+      --nopipes             Do not analyze named pipes
       --noprocs             Do not analyze Processes
       --noprofiles          Do not analyze profile directories
       --noreg               Do not analyze the registry
@@ -104,7 +120,7 @@ THOR APT Scanner Scan Parameters
 
 ## Flags for Active Features
 ```
-      --customonly             Use custom signatures only (disables all internal THOR signatures)
+      --customonly             Use custom signatures only (disables all internal THOR signatures and detections)
       --dumpscan               Scan memory dumps
       --full-registry          Do not skip registry hives keys with less relevance
       --noamcache              Do not analyze Amcache files
@@ -115,6 +131,7 @@ THOR APT Scanner Scan Parameters
       --noexedecompress        Do not decompress and scan portable executables
       --nogroupsxml            Do not analyze groups.xml
       --noknowledgedb          Do not check Knowledge DB on Mac OS
+      --nolnk                  Do not analyze LNK files
       --nologscan              Do not scan log files (identified by .log extension or location)
       --noprefetch             Do not analyze prefetch directory
       --noprocconnections      Do not analyze process connections
@@ -143,12 +160,12 @@ THOR APT Scanner Scan Parameters
       --encrypt                     Encrypt the generated log files and the MD5 csv file
       --eventlog                    Log to windows application eventlog
       --genid                       Print a unique ID for each log message. Identical log messages will have the same ID.
-      --htmlfile string             Log file for HTML output (default ":hostname:_thor_2020-06-19.html")
+      --htmlfile string             Log file for HTML output (default ":hostname:_thor_2020-06-20_0919.html")
       --json                        Create a json report file
-      --jsonfile string             Log file for JSON output, see --json (default ":hostname:_thor_2020-06-19.json")
+      --jsonfile string             Log file for JSON output, see --json (default ":hostname:_thor_2020-06-20_0919.json")
       --keyval                      Format text and HTML log files with key value pairs to simplify the field extraction in SIEM systems (key='value')
       --local-syslog                Print THOR events to local syslog
-  -l, --logfile string              Log file for text output (default ":hostname:_thor_2020-06-19.txt")
+  -l, --logfile string              Log file for text output (default ":hostname:_thor_2020-06-20_0919.txt")
   -x, --min int                     Only report files with at least this score (default 40)
       --mute-sigma-rule int         Don't print sigma rule matches if that sigma rule already matched more than X times. 0 means that sigma rules will never be muted. (default 10)
       --nocolor                     Do not use ANSI escape sequences for colorized command line output
@@ -166,9 +183,11 @@ THOR APT Scanner Scan Parameters
       --reduced                     Reduced output mode - only warnings, alerts and errors will be printed
       --registry_depth_print int    Don't print info messages when traversing registry keys at a higher depth than this (default 1)
       --rfc3339                     Print timestamps in RFC3339 (YYYY-MM-DD'T'HH:mm:ss'Z') format
-  -i, --scanid string               Specify a scan identifier (useful to filter on the scan ID, should be unique) (default "S-EvqXtwgU9XA")
+  -i, --scanid string               Specify a scan identifier (useful to filter on the scan ID, should be unique)
+      --scanid-prefix string        Specify a prefix for the scan ID that is concatenated with a random ID if neither --scanid nor --noscanid are specified (default "S-")
       --silent                      Do not print anything to command line
       --stats-file string           Set the name of the CSV stats file, see --csvstats (default ":hostname:_stats.csv")
+      --string-context uint         When printing strings from YARA matches on files, include this many bytes surrounding the match (default 0)
       --truncate int                Max. length per THOR value (0 = no truncate) (default 750)
       --utc                         Print timestamps in UTC instead of local time zone
 ```
@@ -219,15 +238,13 @@ THOR APT Scanner Scan Parameters
 
 ## Flags for Automatic Collection of Suspicious Files (Bifrost)
 ```
-      --bifrost2GRPC             Use gRPC protocol instead of https protocol for Bifrost 2 (ASGARD 2 only)
-      --bifrost2Ignore strings   Ignore files that match this pattern and do not send them to the Bifrost 2 quarantine service. '*' matches any sequence of non-separator characters, '?' matches any single non-separator character.
-      --bifrost2Key string       API key to be used for the Bifrost 2 quaratine service
-      --bifrost2Level int        Send all files with at least this score to the Bifrost 2 quarantine service (default 60)
-      --bifrost2Prompt           Prompt for Bifrost 2 API key
-      --bifrost2Server string    Server running the Bifrost 2 quarantine service. THOR will upload all suspicious files to this server.
-      --bifrostLevel int         Minimum score to send file to the Bifrost quarantine service (default 60)
-      --bifrostPort int          Port where the Bifrost quarantine service is running (default 1400)
-  -b, --bifrostServer string     Server running the Bifrost quarantine service. THOR will upload all suspicious files to this server.
+      --bifrost2Level int       Send all files with at least this score to the Bifrost 2 quarantine service.
+                                This flag is only usable when invoking THOR from ASGARD 2. (default 60)
+      --bifrost2Server string   Server running the Bifrost 2 quarantine service. THOR will upload all suspicious files to this server.
+                                This flag is only usable when invoking THOR from ASGARD 2.
+      --bifrostLevel int        Minimum score to send file to the Bifrost quarantine service (default 60)
+      --bifrostPort int         Port where the Bifrost quarantine service is running (default 1400)
+  -b, --bifrostServer string    Server running the Bifrost quarantine service. THOR will upload all suspicious files to this server.
 ```
 
 ## Flags for Debugging
