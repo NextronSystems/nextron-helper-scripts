@@ -2,8 +2,8 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.15.1
-# Date Created: 20.06.2020  
+# Version: 0.16.0
+# Date Created: 13.07.2020  
 ################################################## 
  
 #Requires -Version 3
@@ -62,7 +62,7 @@ param
         [Alias('AMC')]
         [string]$AsgardServer,  
 
-    [Parameter(HelpMessage="Use Nextron's cloud instead of an ASGARD instance to download THOR and generate a license")] 
+    [Parameter(HelpMessage="Use Nextron's cloud to download THOR and generate a license")] 
         [ValidateNotNullOrEmpty()] 
         [Alias('CP')]    
         [switch]$UseThorCloud,
@@ -150,33 +150,25 @@ $UsePresetConfig = $True
 
 # PRESET CONFIGS
 
-# SELECTIVE
-# Preset template for a selective scan
-# Run time: 5 to 30 minutes
+# FULL with Lookback
+# Preset template for a complete scan with a lookback of 2 days
+# Run time: 40 minutes to 6 hours
 # Specifics:
-#   - runs a reduced quick scan
-# cloudconf: [!]PresetConfig_Selective [Balanced Scan] Performs a balanced scan with important elements, process, registry, eventlog, persistence checks (5 to 30 min) (use with Microsoft Defender ATP)
-$PresetConfig_Selective = @"
+#   - runs all default modules
+#   - only scans elements that have been changed or created within the last 48 hours
+#   - applies Sigma rules
+# cloudconf: [!]PresetConfig_Full_Lookback [Full Scan with Lookback] Performs a full disk scan with all modules but only checks elements changed or created within the last 48 hours - best for SOC response to suspicious events (5 to 20 min)
+$PresetConfig_Full_Lookback = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
-module:
-  - Autoruns
-  - Rootkit
-  - ShimCache
-  - DNSCache 
-  - RegistryChecks
-  - ScheduledTasks
-  - FileScan
-  - ProcessCheck
-  - Eventlog
 nosoft: true           # Don't trottle the scan, even on single core systems
-lookback: 1            # Log and Eventlog look back time in days
+global-lookback: true  # 
+lookback: 2            # Log and Eventlog look back time in days
+# cpulimit: 70         # Limit the CPU usage of the scan
 sigma: true            # Activate Sigma scanning on Eventlogs
-quick: true            # Quick scan mode
 nofserrors: true       # Don't print an error for non-existing directories selected in quick scan 
 nocsv: true            # Don't create CSV output file with all suspicious files
 noscanid: true         # Don't print a scan ID at the end of each line (only useful in SIEM import use cases)
 nothordb: true         # Don't create a local SQLite database for differential analysis of multiple scans
-# syslog: 10.0.0.1:514 # Syslog server to send the log data to
 "@
 
 # QUICK
@@ -189,18 +181,7 @@ nothordb: true         # Don't create a local SQLite database for differential a
 # cloudconf: PresetConfig_Quick [Quick Scan] Performs a quick scan on processes, caches, persistence elements and selected highly relevant directories (3 to 10 min)
 $PresetConfig_Quick = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
-module:
-  - Autoruns
-  - Rootkit
-  - ShimCache
-  - DNSCache 
-  # - RegistryChecks
-  - ScheduledTasks
-  - FileScan
-  - ProcessCheck
-  - Eventlog
 nosoft: true       # Don't trottle the scan, even on single core systems
-lookback: 1        # Log and Eventlog look back time in days
 quick: true        # Quick scan mode
 nofserrors: true   # Don't print an error for non-existing directories selected in quick scan 
 nocsv: true        # Don't create CSV output file with all suspicious files
@@ -228,52 +209,10 @@ noscanid: true     # Don't print a scan ID at the end of each line (only useful 
 nothordb: true     # Don't create a local SQLite database for differential analysis of multiple scans
 "@
 
-# FULL with Lookback
-# Preset template for a complete scan with a lookback of 2 days
-# Run time: 40 minutes to 6 hours
-# Specifics:
-#   - runs all default modules
-#   - only scans elements that have been changed or created within the last 48 hours
-#   - applies Sigma rules
-# cloudconf: PresetConfig_Full_Lookback [Full Scan with Lookback] Performs a full disk scan with all modules but only checks elements changed or created within the last 48 hours (5 to 20 min)
-$PresetConfig_Full_Lookback = @"
-rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
-nosoft: true        # Don't trottle the scan, even on single core systems
-global-lookback: 2  # 
-lookback: 1         # Log and Eventlog look back time in days
-# cpulimit: 70      # Limit the CPU usage of the scan
-sigma: true         # Activate Sigma scanning on Eventlogs
-nofserrors: true    # Don't print an error for non-existing directories selected in quick scan 
-nocsv: true         # Don't create CSV output file with all suspicious files
-noscanid: true      # Don't print a scan ID at the end of each line (only useful in SIEM import use cases)
-nothordb: true      # Don't create a local SQLite database for differential analysis of multiple scans
-"@
-
-# Sigma Only
-# Preset template for a pure Sigma scan
-# Run time: highly depends on local Eventlog sizes 
-# (use lookback to scan only the last X days)
-# Specifics:
-#   - runs Eventlog module
-#   - applies Sigma rules
-# cloudconf: PresetConfig_Sigma [Sigma Only Scan] Performs a scan with 600+ included Sigma rules on the local Eventlog (5 min to 2 hours; depends on local Eventlog size)
-$PresetConfig_Sigma = @"
-rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
-module:
-  - Eventlog
-sigma: true        # Activate Sigma scanning on Eventlogs
-# lookback: 3      # Log and Eventlog look back time in days
-nosoft: true       # Don't trottle the scan, even on single core systems
-nofserrors: true   # Don't print an error for non-existing directories selected in quick scan 
-nocsv: true        # Don't create CSV output file with all suspicious files
-noscanid: true     # Don't print a scan ID at the end of each line (only useful in SIEM import use cases)
-nothordb: true     # Don't create a local SQLite database for differential analysis of multiple scans
-"@
-
 # SELECT YOU CONFIG
 # Select your preset config
 # Choose between: $PresetConfig_Full, $PresetConfig_Quick, $PresetConfig_Selective
-$PresetConfig = $PresetConfig_Selective
+$PresetConfig = $PresetConfig_Full_Lookback
 
 # False Positive Filters
 $UseFalsePositiveFilters = $True
