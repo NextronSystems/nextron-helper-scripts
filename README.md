@@ -1,9 +1,9 @@
 # nextron-helper-scripts
 Public tools, scripts or code snippets that can help when working with our products
 
-# ASGARD
+## ASGARD
 
-## Bulkd License Generator for ASGARD v2
+### Bulkd License Generator for ASGARD v2
 
 Written for: ASGARD v2
 Language: Windows Batch
