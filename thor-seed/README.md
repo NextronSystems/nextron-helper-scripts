@@ -31,7 +31,7 @@ THOR Seed retrieves the THOR program package from different locations:
 For details on ASGARD see [ASGARD's product page](https://www.nextron-systems.com/asgard-management-center/).
 
 ```console
-thor-seed.ps1 -AsgardServer asgard1.internal
+thor-seed.ps1 -AsgardServer asgard1.internal -token 74y47Wjw3wWRKlmBu4EUWFzGY-QWgdmzRZ
 ```
 
 ### From THOR Cloud
@@ -52,7 +52,7 @@ thor-seed.ps1 -CustomUrl https://web1.internal/thor/mythor-pack.zip
 
 ### -AsgardServer
 
-Enter the server name or IP address of your ASGARD instance.
+Enter the server name (FQDN) or IP address of your ASGARD instance.
 
 ### -UseThorCloud
 

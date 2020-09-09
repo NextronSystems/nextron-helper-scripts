@@ -2,8 +2,9 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.16.0
+# Version: 0.17.0
 # Date Created: 13.07.2020  
+# Last Modified: 09.09.2020
 ################################################## 
  
 #Requires -Version 3
@@ -14,7 +15,7 @@
     .DESCRIPTION 
         The "thor-seed" script downloads THOR from an ASGARD instance, the Netxron cloud or a custom URL and executes THOR on the local system writing log files or transmitting syslog messages to a remote system
     .PARAMETER AsgardServer 
-        Enter the server name or IP address of your ASGARD instance. 
+        Enter the server name (FQDN) or IP address of your ASGARD instance. 
     .PARAMETER UseThorCloud 
         Use the official Nextron cloud systems instead of an ASGARD instance. 
     .PARAMETER Token 
@@ -121,13 +122,14 @@ if ( $OutputPath -eq "" -or $OutputPath.Contains("Windows Defender Advanced Thre
 # Write local log file for THOR Seed script activity
 #[bool]$NoLog = $True
 
-# ASGARD Server
+# ASGARD Server (IP or FQDN)
 #[string]$AsgardServer = "asgard.beta.nextron-systems.com"
 
 # Use THOR Cloudselects only APT relevant directories for file system scan
 #[bool]$UseThorCloud = $True
 
 # Download Token
+# usable with THOR Cloud and ASGARD 
 #[string]$Token = "YOUR DOWNLOAD TOKEN"
 
 # Random Delay (added before the scan start to distribute the inital load)
@@ -376,7 +378,7 @@ try {
         if ( $AsgardServer -ne "" ) {
             Write-Log "Attempting to download THOR from $AsgardServer" -Level "Progress"
             # Generate download URL 
-            $DownloadUrl = "https://$($AsgardServer):8443/api/v0/downloads/thor/thor10-win?hostname=$($Hostname)&type=$($LicenseType)&iocs=%5B%22default%22%5D"
+            $DownloadUrl = "https://$($AsgardServer):8443/api/v0/downloads/thor/thor10-win?hostname=$($Hostname)&type=$($LicenseType)&iocs=%5B%22default%22%5D&token=$($Token)"
         }
         # Netxron Customer Portal
         elseif ( $UseThorCloud ) {
