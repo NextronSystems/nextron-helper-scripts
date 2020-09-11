@@ -159,8 +159,8 @@ $UsePresetConfig = $True
 #   - runs all default modules
 #   - only scans elements that have been changed or created within the last 48 hours
 #   - applies Sigma rules
-# cloudconf: [!]PresetConfig_Full_Lookback [Full Scan with Lookback] Performs a full disk scan with all modules but only checks elements changed or created within the last 48 hours - best for SOC response to suspicious events (5 to 20 min)
-$PresetConfig_Full_Lookback = @"
+# cloudconf: [!]PresetConfig_FullLookback [Full Scan with Lookback] Performs a full disk scan with all modules but only checks elements changed or created within the last 48 hours - best for SOC response to suspicious events (5 to 20 min)
+$PresetConfig_FullLookback = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
 nosoft: true           # Don't trottle the scan, even on single core systems
 global-lookback: true  # 
