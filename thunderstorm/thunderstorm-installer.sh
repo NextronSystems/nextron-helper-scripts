@@ -3,7 +3,7 @@
 # THOR Thunderstorm Installer
 # Florian Roth
 
-VERSION="0.2.2"
+VERSION="0.3.0"
 
 # Settings ------------------------------------------------------------
 SYSTEM_NAME=$(uname -n | tr -d "\n")
@@ -200,6 +200,12 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
+# No promopt
+automatic=0
+if [ "$1" == "auto" ]; then 
+    automatic=1
+fi
+
 # Uninstaller
 if [ "$1" == "uninstall" ]; then
     read -p "Do you really want to remove THOR Thunderstorm and all its config files? " -n 1 -r
@@ -223,23 +229,24 @@ if [ "$1" == "uninstall" ]; then
     exit 0
 fi
 
-# Info on what is going to happen
-echo 
-echo "The script will make the following changes to your system:"
-echo "  1. Install THOR into /opt/nextron/thunderstorm"
-echo "  2. Drops a base configuration into /etc/thunderstorm"
-echo "  3. Create a log directory /var/log/thunderstorm for log files of the service"
-echo "  4. Create a user named 'thunderstorm' for the new service"
-echo "  5. Create a new service named 'thor-thunderstorm'"
-echo 
-echo "You can uninstall THOR Thunderstorm with './thunderstorm-installer uninstall'"
-echo
-read -p "Are you ready to install THOR Thunderstorm? " -n 1 -r
-echo    # (optional) move to a new line
-if [[ ! $REPLY =~ ^[Yy]$ ]]
-then
-    log info "Thunderstorm installer has been interrupted."
-    exit 0
+if [[ $automatic -eq 0 ]]; then
+    # Info on what is going to happen
+    echo 
+    echo "The script will make the following changes to your system:"
+    echo "  1. Install THOR into /opt/nextron/thunderstorm"
+    echo "  2. Drops a base configuration into /etc/thunderstorm"
+    echo "  3. Create a log directory /var/log/thunderstorm for log files of the service"
+    echo "  4. Create a user named 'thunderstorm' for the new service"
+    echo "  5. Create a new service named 'thor-thunderstorm'"
+    echo 
+    echo "You can uninstall THOR Thunderstorm with './thunderstorm-installer uninstall'"
+    echo
+    read -p "Are you ready to install THOR Thunderstorm? " -n 1 -r
+    echo    # (optional) move to a new line
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        log info "Thunderstorm installer has been interrupted."
+        exit 0
+    fi
 fi
 
 log info "Started Thunderstorm Installer - version $VERSION"
