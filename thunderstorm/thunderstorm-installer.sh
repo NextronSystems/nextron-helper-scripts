@@ -2,6 +2,10 @@
 #
 # THOR Thunderstorm Installer
 # Florian Roth
+#
+# Script parameters
+# uninstall: Uninstall Thunderstorm service
+# auto: Don't prompt for a confirmation
 
 VERSION="0.3.0"
 
