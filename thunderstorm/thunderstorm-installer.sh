@@ -25,6 +25,7 @@ read -r -d '' SERVICE_CONFIG << EOM
 Description=THOR Thunderstorm Server
 
 [Service]
+AmbientCapabilities=CAP_NET_BIND_SERVICE
 Type=simple
 ExecStart=/opt/nextron/thunderstorm/thor-linux-64 --thunderstorm -t /etc/thunderstorm/thunderstorm.yml
 WorkingDirectory=/opt/nextron/thunderstorm
