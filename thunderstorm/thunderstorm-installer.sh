@@ -3,7 +3,7 @@
 # THOR Thunderstorm Installer
 # Florian Roth
 
-VERSION="0.2.0"
+VERSION="0.2.1"
 
 # Settings ------------------------------------------------------------
 SYSTEM_NAME=$(uname -n | tr -d "\n")
@@ -132,12 +132,12 @@ function check_req
     log info "Checking the required utilities ..."
     wget_avail=$(command -v wget)
     if [[ -z $wget_avail ]]; then 
-        log error "The 'wget' command can't be found but is needed"
+        log error "The 'wget' command can't be found but is needed (install with: sudo apt install wget / sudo yum install wget)"
         exit 1
     fi
     zip_avail=$(command -v unzip)
     if [[ -z $zip_avail ]]; then 
-        log error "The 'unzip' command can't be found but is needed"
+        log error "The 'unzip' command can't be found but is needed (install with: sudo apt install unzip / sudo yum install unzip)"
         exit 1
     fi
     md5sum_avail=$(command -v md5sum)
@@ -271,22 +271,25 @@ log info "Evaluated license hash: $lic_hash"
 if [ ! -d /opt/nextron/thunderstorm ]; then
     log info "Creating new directory '/opt/nextron/thunderstorm' ..."
     mkdir -p /opt/nextron/thunderstorm
-    new_inst=1
 else 
     log info "Thunderstorm directory already exists - assuming upgrade - will not overwrite config files"
-    new_inst=0
-fi 
+fi
+
+# New installation 
+if [ ! -f /opt/nextron/thunderstorm/config/thor.yml ]; then 
+    new_inst=1
+fi
 
 # Add a local user
 user_present=$(grep thunderstorm /etc/passwd)
 if [ -z "$user_present" ]; then
     log info "Creating new user 'thunderstorm' ..."
-    /sbin/adduser --system --no-create-home --gecos "Thunderstorm Service User" thunderstorm
+    /sbin/adduser --system --no-create-home -c "Thunderstorm Service User" thunderstorm
 fi 
 
 # Download THOR Package
 result_download=$(download_thor "$lic_hash")
-if [[ "$result_download" -ne "1" ]]; then
+if [[ "$result_download" -ne "0" ]]; then
     log error "Download of THOR package failed. Maybe it's a proxy or firewall issue? https://stackoverflow.com/questions/11211705/how-to-set-proxy-for-wget"
     exit 1
 fi
