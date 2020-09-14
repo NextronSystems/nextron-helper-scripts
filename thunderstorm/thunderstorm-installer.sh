@@ -300,7 +300,13 @@ excl_string=""
 if [ $new_inst -eq 0 ]; then 
     excl_string="-x config/*"
 fi
-unzip -o -q $TARGET_DIR/thor.zip $excl_string -d $TARGET_DIR
+
+if unzip -o -q $TARGET_DIR/thor.zip $excl_string -d $TARGET_DIR; then 
+    log info "Successfully unzipped THOR package"
+else
+    log error "Extraction of THOR package failed."
+    exit 1
+fi
 
 # Create Config file
 log info "Creating config files ..."
