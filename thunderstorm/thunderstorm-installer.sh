@@ -3,7 +3,7 @@
 # THOR Thunderstorm Installer
 # Florian Roth
 
-VERSION="0.2.1"
+VERSION="0.2.2"
 
 # Settings ------------------------------------------------------------
 SYSTEM_NAME=$(uname -n | tr -d "\n")
@@ -285,7 +285,7 @@ fi
 user_present=$(grep thunderstorm /etc/passwd)
 if [ -z "$user_present" ]; then
     log info "Creating new user 'thunderstorm' ..."
-    /sbin/adduser --system --no-create-home -c "Thunderstorm Service User" thunderstorm
+    useradd --system -M -c "Thunderstorm Service User" thunderstorm
 fi 
 
 # Download THOR Package
