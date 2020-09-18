@@ -3,3 +3,4 @@
 *.txt
 *.log
 settings.json
+curl.exe
