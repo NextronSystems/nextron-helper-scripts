@@ -1,7 +1,4 @@
 @ECHO OFF
-:: used for a hack to use forefiles instead of FOR /R loop, which has a memory leak
-FOR /F "tokens=3 delims=:" %%L in ("%~0") DO goto :%%L
-
 SETLOCAL EnableExtensions EnableDelayedExpansion
 
 :: ----------------------------------------------------------------
@@ -47,7 +44,7 @@ SET /A COLLECT_MAX_SIZE=3000000
 SET /A MAX_AGE=30
 
 :: Debug
-SET DEBUG=0
+SET DEBUG=1
 
 :: WELCOME -------------------------------------------------------
 
