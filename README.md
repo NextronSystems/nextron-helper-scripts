@@ -34,7 +34,3 @@ Written for: THOR
 Language: Markdown
 
 A listing of all THOR command line flags and their description. 
-
-## Thunderstorm
-
-A THOR Thunderstorm Installer script for Linux systems. 
