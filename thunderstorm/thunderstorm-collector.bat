@@ -1,49 +1,69 @@
 @ECHO OFF
-SETLOCAL EnableDelayedExpansion
+:: used for a hack to use forefiles instead of FOR /R loop, which has a memory leak
+FOR /F "tokens=3 delims=:" %%L in ("%~0") DO goto :%%L
 
-:: ----------------------------------------------
+SETLOCAL EnableExtensions EnableDelayedExpansion
+
+:: ----------------------------------------------------------------
 :: THOR Thunderstorm Collector
 :: Windows Batch
 :: Florian Roth
-:: v0.1
+:: v0.2
 :: 
-:: A Windows Batch script that uses a compiled curl for Windows 
+:: A Windows Batch script that uses a compiled Curl for Windows 
 :: to upload files to a THOR Thunderstorm server
 ::
 :: Requirements:
 :: Curl for Windows (place ./bin/curl.exe from the package into the script folder)
 :: https://curl.haxx.se/windows/
 ::
-:: Note on OLD Windows versions
-:: The latest version of curl that works with Windows 2003 and earlier is 
-:: v7.46.0 and can be still be downloaded from here: 
+:: Note on Windows 10
+:: Windows 10 already includes a curl since build 17063, so all versions newer than 
+:: version 1709 (Redstone 3) from October 2017 already meet the requirements
+::
+:: Note on very old Windows versions:
+:: The last version of curl that works with Windows 7 / Windows 2008 R2 
+:: and earlier is v7.46.0 and can be still be downloaded from here: 
 :: https://bintray.com/vszakats/generic/download_file?file_path=curl-7.46.0-win32-mingw.7z
 
-:: Configuration
+:: CONFIGURATION -------------------------------------------------
+
+:: THUNDERSTORM SERVER -------------------------------------------
 :: The thunderstorm server host name (fqdn) or IP
 SET THUNDERSTORM_SERVER=ygdrasil.nextron
 SET THUNDERSTORM_PORT=8080
 :: Use http or https
 SET URL_SCHEME=http
 
+:: SELECTION -----------------------------------------------------
+
 :: The directory that should be walked
 SET COLLECT_DIR="C:\"
 :: The pattern of files to include
-SET COLLECT_PATTERN=*.*
+SET RELEVANT_EXTENSIONS=.asp .vbs .ps .ps1 .rar .tmp .bas .bat .chm .cmd .com .cpl .crt .dll .exe .hta .js .lnk .msc .ocx .pcd .pif .pot .pdf .reg .scr .sct .sys .url .vb .vbe .vbs .wsc .wsf .wsh .ct .t .input .war .jsp .php .asp .aspx .doc .docx .pdf .xls .xlsx .ppt .pptx .tmp .log .dump .pwd .w .txt .conf .cfg .conf .config .psd1 .psm1 .ps1xml .clixml .psc1 .pssc .pl .www .rdp .jar .docm .ace .job .temp .plg .asm
 :: Maximum file size to collect (in bytes) (defualt: 3MB)
 SET /A COLLECT_MAX_SIZE=3000000
 :: Maximum file age in days (default: 7300 days = 20 years)
-SET /A MAX_AGE=3
+SET /A MAX_AGE=30
 
 :: Debug
 SET DEBUG=0
 
-ECHO =============================================
-ECHO  THOR Thunderstorm Batch Collector
-ECHO =============================================
+:: WELCOME -------------------------------------------------------
+
+ECHO =============================================================
+ECHO    ________                __            __                
+ECHO   /_  __/ /  __ _____  ___/ /__ _______ / /____  ______ _  
+ECHO    / / / _ \/ // / _ \/ _  / -_) __(_--/ __/ _ \/ __/  ' \ 
+ECHO   /_/ /_//_/\_,_/_//_/\_,_/\__/_/ /___/\__/\___/_/ /_/_/_/ 
+ECHO. 
+ECHO   Windows Batch Collector
+ECHO   Florian Roth, 2020
+ECHO.
+ECHO =============================================================
 ECHO. 
 
-:: Requirements Check
+:: REQUIREMENTS -------------------------------------------------
 :: CURL in PATH
 where /q curl.exe 
 IF NOT ERRORLEVEL 1 (
@@ -59,36 +79,47 @@ EXIT /b 1
 :CHECKDONE
 ECHO Curl has been found. We're ready to go. 
 
+:: COLLECTION --------------------------------------------------
+
 :: Directory walk and upload
-ECHO Processing %COLLECT_DIR% with filters PATTERN: %COLLECT_PATTERN% MAX_SIZE: %COLLECT_MAX_SIZE% MAX_AGE: %MAX_AGE% days
+ECHO Processing %COLLECT_DIR% with filters MAX_SIZE: %COLLECT_MAX_SIZE% MAX_AGE: %MAX_AGE% days EXTENSIONS: %RELEVANT_EXTENSIONS% 
 ECHO This could take a while depending on the disk size and number of files. (set DEBUG=1 to see all skips)
-FOR /R %COLLECT_DIR% %%F IN (%COLLECT_PATTERN%) DO (
-    :: If the folder is empty (root directory), add extra characters
-    SETLOCAL 
-    IF "%%~pF"=="\" (
-        SET FOLDER=%%~dF%%~pF\\
-    ) ELSE (
-        SET FOLDER=%%~dF%%~pF
-    )
-    :: Walk through files
-    FORFILES /P "!FOLDER:~0,-1!" /M "%%~nF%%~xF" /D -%MAX_AGE% >nul 2>nul && (
-        :: File is too old
-        IF %DEBUG% == 1 ECHO Skipping %%F due to age ...
-    ) || (
-        :: File Size Check 
-        IF %%~zF GTR %COLLECT_MAX_SIZE% (
-            :: File is too big
-            IF %DEBUG% == 1 ECHO Skipping %%F due to big file size ...
-        ) ELSE (
-            :: Upload
-            ECHO Uploading %%F ..
-            :: We'll start the upload process in background to speed up the submission process 
-            START /B curl -F file=@%%F ^
-            -H "Content-Type: multipart/form-data" ^
-            -o nul ^
-            -s ^
-            %URL_SCHEME%://%THUNDERSTORM_SERVER%:%THUNDERSTORM_PORT%/api/checkAsync
+FOR /R %COLLECT_DIR% %%F IN (*.*) DO (
+    SETLOCAL
+    :: Marker if processed due to selected extensions
+    SET PROCESSED=false
+    :: Extension Check
+    FOR %%E IN (%RELEVANT_EXTENSIONS%) DO (
+        :: Check if one of the relevant extensions matches the file extension
+        IF /I "%%~xF"=="%%E" (
+            SET PROCESSED=true
+            :: When the folder is empty (root directory) add extra characters
+            IF "%%~pF"=="\" (
+                SET FOLDER=%%~dF%%~pF\\
+            ) ELSE (
+                SET FOLDER=%%~dF%%~pF
+            )
+            :: Age check
+            FORFILES /P "!FOLDER:~0,-1!" /M "%%~nF%%~xF" /D -%MAX_AGE% >nul 2>nul && (
+                :: File is too old
+                IF %DEBUG% == 1 ECHO Skipping %%F due to age ...
+            ) || (
+                :: File Size Check 
+                IF %%~zF GTR %COLLECT_MAX_SIZE% (
+                    :: File is too big
+                    IF %DEBUG% == 1 ECHO Skipping %%F due to big file size ...
+                ) ELSE (
+                    :: Upload
+                    ECHO Uploading %%F ..
+                    :: We'll start the upload process in background to speed up the submission process 
+                    START /B curl -F file=@%%F -H "Content-Type: multipart/form-data" -o nul -s %URL_SCHEME%://%THUNDERSTORM_SERVER%:%THUNDERSTORM_PORT%/api/checkAsync
+                )
+            )
         )
+    )
+    :: Note that file was skippe due to wrong extension
+    IF %DEBUG% == 1 (
+        IF !PROCESSED! == false ECHO Skipping %%F due to extension ...
     )
     ENDLOCAL
 )
