@@ -1,6 +1,6 @@
 # THOR Thunderstorm Helper Scripts
 
-This folder contains scripts that help you with the installation and maintenance of THOR Thunderstorm.
+This folder contains scripts that help you with the installation and maintenance of THOR Thunderstorm. If you're looking for the Thunderstorm Collector or the collector scripts, find them in this dedicated [repository](https://github.com/NextronSystems/thunderstorm-collector).
 
 ## Thunderstorm Installer
 
@@ -18,6 +18,19 @@ A shell script for Linux.
 
 - bash
 - wget
+- unzip
+
+Install them with:
+
+```bash
+sudo apt install wget unzip
+```
+
+or
+
+```bash
+sudo yum install wget unzip
+```
 
 #### Installation
 
@@ -32,7 +45,3 @@ The steps to install THOR Thunderstorm as a service are:
 Successfully tested on:
 
 - Debian 10
-
-## Thunderstorm Collector Scripts
-
-The Thunderstorm scripts have been moved to [this](https://github.com/NextronSystems/thunderstorm-collector/tree/master/scripts) new location. 
