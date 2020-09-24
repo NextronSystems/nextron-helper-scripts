@@ -186,6 +186,13 @@ function download_thor
     return $?
 }
 
+function download_update_script
+{
+    log info "Install thunderstorm-update script ..."
+    wget -O /usr/local/sbin/thunderstorm-update https://raw.githubusercontent.com/NextronSystems/nextron-helper-scripts/master/thunderstorm/thunderstorm-update.sh
+    chmod +x /usr/local/sbin/thunderstorm-update
+}
+
 # Program -------------------------------------------------------------
 
 echo "=============================================================="
@@ -223,6 +230,7 @@ if [ "$1" == "uninstall" ]; then
     rm -rf /opt/nextron/thunderstorm 
     rm -rf /etc/thunderstorm 
     rm -rf /tmp/thunderstorm
+    rm -rf /usr/local/sbin/thunderstorm-update
     systemctl stop thor-thunderstorm
     systemctl disable thor-thunderstorm
     rm -rf /etc/systemd/system/thor-thunderstorm.service
@@ -299,6 +307,9 @@ if [ -z "$user_present" ]; then
     log info "Creating new user 'thunderstorm' ..."
     useradd --system -M -c "Thunderstorm Service User" thunderstorm
 fi 
+
+# Install Update Script
+download_update_script
 
 # Download THOR Package
 result_download=$(download_thor "$lic_hash")
