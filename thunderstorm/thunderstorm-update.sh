@@ -38,7 +38,7 @@ if [ "$1" == "full" ]; then
     echo "Trying to stop the Thunderstorm service ..."
     systemctl stop thor-thunderstorm || { echo "Cannot stop the Thunderstorm service"; exit 1; }
     echo "Upgrading THOR and signatures ..."
-    ./thor-util upgrade --license-path /etc/thunderstorm
+    ./thor-util upgrade --techpreview --license-path /etc/thunderstorm
     echo "Restarting Thunderstorm service ..."
     systemctl start thor-thunderstorm || { echo "Cannot start the Thunderstorm service. Check the log /var/log/thunderstorm/thunderstorm.log for errors or try to start it manually in the terminal with /opt/nextron/thunderstorm/thor-linux-64 --thunderstorm -t /etc/thunderstorm/thunderstorm.yml"; exit 1; }
     echo "Successfully updated THOR and signatures"
