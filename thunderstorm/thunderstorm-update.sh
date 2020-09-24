@@ -44,8 +44,9 @@ if [ "$1" == "full" ]; then
     echo "Successfully updated THOR and signatures"
     exit 0
 else
-    echo "Updating signatures ..."
+    echo "Updating signatures with thor-util in $PROGRAM_DIR ..."
     ./thor-util update --license-path /etc/thunderstorm
     echo "Successfully updated signatures"
     echo "Now restart the Thunderstorm service at the next opportunity with: sudo systemctl restart thor-thunderstorm"
+    echo "Note: Use './thunderstorm-update full' to upgrade the binaries and signatures (warning: it will also restart the service automatically)"
 fi
