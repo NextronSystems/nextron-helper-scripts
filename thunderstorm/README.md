@@ -45,3 +45,21 @@ The steps to install THOR Thunderstorm as a service are:
 Successfully tested on:
 
 - Debian 10
+
+## Thunderstorm Updater
+
+The Thunderstorm updater script gets installed by Thunderstorm installer. You don't have to download it manually. If you download it manually, the usage examples below differ (`chmod +x thunderstorm-uupdate.sh` and add `.sh` extension to the commands). The Thunderstorm installer places this script as `thunderstorm-update` into the `/usr/local/sbin` folder. 
+
+### Usage
+
+Update signatures only. Manual service restart required.
+
+```bash
+sudo thunderstorm-update
+```
+
+Update THOR Thunderstorm binaries and signatures. Automatically stops and restarts the services after successfull update.
+
+```bash
+sudo thunderstorm-update full
+```
