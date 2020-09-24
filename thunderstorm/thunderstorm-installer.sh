@@ -22,6 +22,10 @@ LOG_TO_FILE=1
 LOG_TO_SYSLOG=0 # Log to syslog is set to 'off' by default
 LOG_TO_CMDLINE=1
 
+# Software and License Download
+# Nextron Update Servers
+declare -a UPDATE_SERVERS=('update1.nextron-systems.com' 'update2.nextron-systems.com');
+
 # Configs
 # Service Deamon
 read -r -d '' SERVICE_CONFIG << EOM
@@ -75,9 +79,6 @@ server-store-samples: none
 # for all other THOR command line flags see:
 # https://github.com/NextronSystems/nextron-helper-scripts/tree/master/thor-help
 EOM
-
-# Nextron Update Servers
-declare -a UPDATE_SERVERS=('update1.nextron-systems.com' 'update2.nextron-systems.com');
 
 # Debug
 DEBUG=1
