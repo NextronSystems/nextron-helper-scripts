@@ -254,7 +254,7 @@ if [[ $automatic -eq 0 ]]; then
     echo 
     echo "You can uninstall THOR Thunderstorm with './thunderstorm-installer uninstall'"
     echo
-    read -p "Are you ready to install THOR Thunderstorm? " -n 1 -r
+    read -p "Are you ready to install THOR Thunderstorm? (y/n)" -n 1 -r
     echo    # (optional) move to a new line
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         log info "Thunderstorm installer has been interrupted."
@@ -388,15 +388,15 @@ echo "Documentation:    /opt/nextron/thunderstorm/docs/THOR_Manual.pdf"
 echo
 echo "Uninstall:       ./thunderstorm-installer uninstall"
 echo 
-echo "Can you hear the rolling thunder?"
-echo 
-echo TEST IT:
-echo "Well, the service should already be up and running."
-echo "Within 20 seconds the web interface will be available on http://0.0.0.0:8080 and all other available interfaces (change that in the config file)"
-echo 
 echo DEBUGGING:
 echo "In case of a problem: "
 echo "  1. check the log file with: tail /var/log/thunderstorm/thunderstorm.log"
 echo "  2. try to run the service manually using"
 echo "     /opt/nextron/thunderstorm/thor-linux-64 --thunderstorm -t /etc/thunderstorm/thunderstorm.yml"
+echo 
+echo "Can you hear the rolling thunder?"
+echo 
+echo "Well, the service should already be up and running."
+echo "Within 20 seconds the web interface will be available on http://0.0.0.0:8080"
+echo "(and all other available interfaces; you can change that in /etc/thunderstorm/thunderstorm.yml)"
 exit 0
