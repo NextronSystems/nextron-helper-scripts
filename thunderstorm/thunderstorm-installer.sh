@@ -384,6 +384,7 @@ echo "Config:           /etc/thunderstorm/thunderstorm.yml"
 echo "Binaries & Sigs:  /opt/nextron/thunderstorm"
 echo "Logs:             /var/log/thunderstorm (change that in config)"
 echo "Sample Files:     /tmp/thunderstorm (change that in config)"
+echo "Documentation:    /opt/nextron/thunderstorm/docs/THOR_Manual.pdf"
 echo
 echo "Uninstall:       ./thunderstorm-installer uninstall"
 echo 
@@ -394,5 +395,8 @@ echo "Well, the service should already be up and running."
 echo "Within 20 seconds the web interface will be available on http://0.0.0.0:8080 and all other available interfaces (change that in the config file)"
 echo 
 echo DEBUGGING:
-echo "In case of a problem check the log file in /var/log/thunderstorm or try to run the service manually with /opt/nextron/thunderstorm/thor-linux-64 --thunderstorm -t /etc/thunderstorm/thunderstorm.yml"
+echo "In case of a problem: "
+echo "  1. check the log file with: tail /var/log/thunderstorm/thunderstorm.log"
+echo "  2. try to run the service manually using"
+echo "     /opt/nextron/thunderstorm/thor-linux-64 --thunderstorm -t /etc/thunderstorm/thunderstorm.yml"
 exit 0
