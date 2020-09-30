@@ -40,6 +40,8 @@ WorkingDirectory=/opt/nextron/thunderstorm
 User=thunderstorm
 Restart=always
 StandardOutput=null
+LimitCORE=infinity
+LimitNOFILE=65536
 
 [Install]
 WantedBy=multi-user.target
