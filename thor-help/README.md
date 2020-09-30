@@ -1,6 +1,4 @@
-# THOR Scan Parameters
-
-THOR APT Scanner Scan Parameters
+# THOR Command Line Flags
 
 This help reflects the scan parameters of THOR 10.6 TechPreview.
 
@@ -256,6 +254,7 @@ This help reflects the scan parameters of THOR 10.6 TechPreview.
 ```
 
 ## Syslog
+
 ```help
       --cef_level int         Define the minimum severity level to log to CEF syslogs (Debug=1, Info=3, Notice=4, Error=5, Warning=8, Alarm=10) (default 4)
       --maxsysloglength int   Truncate Syslog messages to the given length (0 means no truncation) (default 2048)
