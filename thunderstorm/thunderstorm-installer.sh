@@ -78,6 +78,9 @@ server-store-samples: none
 # available for remote queries (default: 10000)
 #server-result-cache-size: 10000
 
+# Other Flags
+noscanid: True
+
 # for all other THOR command line flags see:
 # https://github.com/NextronSystems/nextron-helper-scripts/tree/master/thor-help
 EOM
@@ -323,7 +326,7 @@ fi
 # Extract the THOR package
 log info "Extracting THOR package to $TARGET_DIR ..."
 excl_string=""
-if [ $new_inst -eq 0 ]; then 
+if [ "$new_inst" -eq "0" ]; then 
     excl_string="-x config/*"
 fi
 
@@ -331,6 +334,7 @@ if unzip -o -q $TARGET_DIR/thor.zip $excl_string -d $TARGET_DIR; then
     log info "Successfully unzipped THOR package"
 else
     log error "Extraction of THOR package failed."
+    log info "Try to check the content of the archive with: cat /opt/nextron/thunderstorm/thor.zip"
     exit 1
 fi
 
