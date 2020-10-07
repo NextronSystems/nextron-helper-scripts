@@ -156,6 +156,16 @@ function check_req
         log error "The 'md5sum' command can't be found but is needed"
         exit 1
     fi
+    useradd_avail=$(command -v useradd)
+    if [[ -z $useradd_avail ]]; then
+        # Try to add /sbin to PATH
+        export PATH="$PATH:/sbin/"
+        useradd_avail=$(command -v useradd)
+        if [[ -z $useradd_avail ]]; then
+            log error "The 'useradd' command can't be found but is needed"
+            exit 1
+        fi
+    fi
     log debug "All required utilities found."
 }
 
@@ -232,6 +242,7 @@ if [ "$1" == "uninstall" ]; then
         log info "Uninstall has been interrupted. No files have been removed."
         exit 0
     fi
+    export PATH="$PATH:/sbin"
     rm -rf /opt/nextron/thunderstorm 
     rm -rf /etc/thunderstorm 
     rm -rf /tmp/thunderstorm
