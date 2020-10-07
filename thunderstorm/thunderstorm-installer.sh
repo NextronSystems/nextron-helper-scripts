@@ -235,7 +235,7 @@ fi
 
 # Uninstaller
 if [ "$1" == "uninstall" ]; then
-    read -p "Do you really want to remove THOR Thunderstorm and all its config files? " -n 1 -r
+    read -p "Do you really want to remove THOR Thunderstorm and all its config files? (y/N)" -n 1 -r
     echo    # (optional) move to a new line
     if [[ ! $REPLY =~ ^[Yy]$ ]]
     then
@@ -270,7 +270,7 @@ if [[ $automatic -eq 0 ]]; then
     echo 
     echo "You can uninstall THOR Thunderstorm with './thunderstorm-installer uninstall'"
     echo
-    read -p "Are you ready to install THOR Thunderstorm? (y/n)" -n 1 -r
+    read -p "Are you ready to install THOR Thunderstorm? (y/N)" -n 1 -r
     echo    # (optional) move to a new line
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         log info "Thunderstorm installer has been interrupted."
