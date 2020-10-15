@@ -80,6 +80,7 @@ server-store-samples: none
 
 # Other Flags
 noscanid: True
+max_runtime: 0
 
 # for all other THOR command line flags see:
 # https://github.com/NextronSystems/nextron-helper-scripts/tree/master/thor-help
