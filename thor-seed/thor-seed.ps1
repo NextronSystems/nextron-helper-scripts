@@ -214,7 +214,7 @@ nothordb: true     # Don't create a local SQLite database for differential analy
 # SELECT YOU CONFIG
 # Select your preset config
 # Choose between: $PresetConfig_Full, $PresetConfig_Quick, $PresetConfig_Selective
-$PresetConfig = $PresetConfig_Full_Lookback
+$PresetConfig = $PresetConfig_FullLookback
 
 # False Positive Filters
 $UseFalsePositiveFilters = $True
@@ -335,9 +335,11 @@ if ( [System.Environment]::Is64BitOperatingSystem -eq $False ) {
 }
 # License Type
 $LicenseType = "server"
+$PortalLicenseType = "server"
 $OsInfo = Get-CimInstance -ClassName Win32_OperatingSystem
 if ( $osInfo.ProductType -eq 1 ) { 
     $LicenseType = "client"
+    $PortalLicenseType = "workstation"
 }
 
 # Output Info on Auto-Detection 
@@ -386,6 +388,7 @@ try {
             $DownloadUrl = "https://cloud.nextron-systems.com/api/public/thor10"
             # Parameters
             $WebClient.Headers.add('X-OS', 'windows')
+            $WebClient.Headers.add('X-Type', $PortalLicenseType)
             if ( $ThorArch -eq "64" ) {
                 $WebClient.Headers.add('X-Arch', 'amd64')
             } else {
