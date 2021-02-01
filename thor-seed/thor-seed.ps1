@@ -2,9 +2,9 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.17.0
+# Version: 0.18.0
 # Date Created: 13.07.2020  
-# Last Modified: 09.09.2020
+# Last Modified: 01.02.2021
 ################################################## 
  
 #Requires -Version 3
@@ -557,7 +557,7 @@ try {
         if ( $AutoDetectPlatform -eq "MDATP" -and $OutputFiles.Length -gt 0 ) {
             Write-Log "Hint (ATP): You can use the following commands to retrieve the scan logs"
             foreach ( $OutFile in $OutputFiles ) {
-                Write-Log "  getfile `"$($OutFile.FullName)`" -auto"
+                Write-Log "  getfile `"$($OutFile.FullName)`""
             }
             #Write-Log "Hint (ATP): You can remove them from the end system by using"
             #foreach ( $OutFile in $OutputFiles ) {
