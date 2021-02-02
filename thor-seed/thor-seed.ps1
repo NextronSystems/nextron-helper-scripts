@@ -367,6 +367,7 @@ if ( $ThorProcess ) {
 }
 
 # Output File Overview
+$OutputFiles = Get-ChildItem -Path "$($OutputPath)\*" -Include "$($Hostname)_thor_*" | Sort CreationTime
 if ( -not $Cleanup ) { 
     # Give help depending on the auto-detected platform 
     if ( $AutoDetectPlatform -eq "MDATP" ) {
@@ -393,10 +394,11 @@ if ( -not $Cleanup ) {
             Write-Log "C.) Run THOR Seed again" -Level "Help"
             Write-Log "    run thor-seed.ps1" -Level "Help"
             return
+        } else {
+            Write-Log "No logs found of a previous scan"
         }
     } else {
         Write-Log "Checking output folder: $($OutputPath)" -Level "Progress"
-        $OutputFiles = Get-ChildItem -Path "$($OutputPath)\*" -Include "$($Hostname)_thor_*" | Sort CreationTime
         if ( $OutputFiles.Length -gt 0 ) {
             Write-Log "Output files that have been generated so far:"
             foreach ( $OutFile in $OutputFiles ) {
