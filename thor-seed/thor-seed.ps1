@@ -385,13 +385,13 @@ if ( -not $Cleanup ) {
         # Cannot run new THOR instance as long as old log files are present 
         if ( -not $ThorProcess -and $OutputFiles.Length -gt 0 ) {
             Write-Log "Cannot start new THOR scan as long as old report files are present" -Level "Error"
-            Write-Log "A.) Retrieve the logs and reports needed" -Level "Help"
+            Write-Log "1.) Retrieve the available log files and HTML reports" -Level "Help"
             foreach ( $OutFile in $OutputFiles ) {
                 Write-Log "    getfile `"$($OutFile.FullName)`"" -Level "Help"
             }
-            Write-Log "B.) Use the following command to cleanup the output directory and remove all previous reports" -Level "Help"
+            Write-Log "2.) Use the following command to cleanup the output directory and remove all previous reports" -Level "Help"
             Write-Log "    run thor-seed.ps1 -parameters `"-Cleanup`"" -Level "Help"
-            Write-Log "C.) Run THOR Seed again" -Level "Help"
+            Write-Log "3.) Start a new THOR scan with" -Level "Help"
             Write-Log "    run thor-seed.ps1" -Level "Help"
             return
         } else {
