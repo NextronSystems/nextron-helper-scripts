@@ -210,7 +210,7 @@ $PresetConfig_Full = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
 nosoft: true       # Don't trottle the scan, even on single core systems
 lookback: 14       # Log and Eventlog look back time in days
-# cpulimit: 70       # Limit the CPU usage of the scan
+# cpulimit: 70     # Limit the CPU usage of the scan
 sigma: true        # Activate Sigma scanning on Eventlogs
 nofserrors: true   # Don't print an error for non-existing directories selected in quick scan 
 nocsv: true        # Don't create CSV output file with all suspicious files
@@ -284,24 +284,26 @@ function Write-Log {
     )
     
     # Indicator 
-    $Indicator = "[+]"
+    $Indicator = "[+] "
     if ( $Level -eq "Warning" ) {
-        $Indicator = "[!]"
+        $Indicator = "[!] "
     } elseif ( $Level -eq "Error" ) {
-        $Indicator = "[E]"
+        $Indicator = "[E] "
     } elseif ( $Level -eq "Progress" ) {
-        $Indicator = "[.]"
+        $Indicator = "[.] "
     } elseif ($Level -eq "Note" ) {
-        $Indicator = "[i]"
+        $Indicator = "[i] "
+    } elseif ($Level -eq "Help" ) {
+        $Indicator = ""
     }
 
     # Output Pipe
     if ( $Level -eq "Warning" ) {
         Write-Warning -Message "$($Indicator) $($Entry)"
     } elseif ( $Level -eq "Error" ) {
-        Write-Host "$($Indicator) $($Entry)" -ForegroundColor Red
+        Write-Host "$($Indicator)$($Entry)" -ForegroundColor Red
     } else {
-        Write-Host "$($Indicator) $($Entry)"
+        Write-Host "$($Indicator)$($Entry)"
     }
     
     # Log File
@@ -333,6 +335,7 @@ Write-Log "Started thor-seed with PowerShell v$($PSVersionTable.PSVersion)"
 # ---------------------------------------------------------------------
 # Evaluation ----------------------------------------------------------
 # ---------------------------------------------------------------------
+
 # Hostname
 $Hostname = $env:COMPUTERNAME
 # Evaluate Architecture 
@@ -355,6 +358,72 @@ if ( $AutoDetectPlatform -ne "" ) {
     Write-Log "Note: Some automatic changes have been applied"
 }
 
+# ---------------------------------------------------------------------
+# THOR still running --------------------------------------------------
+# ---------------------------------------------------------------------
+$ThorProcess = Get-Process -Name "thor64" -ErrorAction SilentlyContinue
+if ( $ThorProcess ) {
+    Write-Log "A THOR process is still running." -Level "Error"
+}
+
+# Output File Overview
+if ( -not $Cleanup ) { 
+    # Give help depending on the auto-detected platform 
+    if ( $AutoDetectPlatform -eq "MDATP" ) {
+        Write-Log "Detected Platform: Microsoft Defender ATP"
+        if ( $ThorProcess ) { 
+            if ( $OutputFiles.Length -gt 0 ) { 
+                Write-Log "Hint: You can use the following commands to retrieve the scan logs"
+                foreach ( $OutFile in $OutputFiles ) {
+                    Write-Log "getfile `"$($OutFile.FullName)`"" -Level "Help"
+                }
+            } else {
+                Write-Log "The scan hasn't produced any output files yet."
+            }
+        }
+        # Cannot run new THOR instance as long as old log files are present 
+        if ( -not $ThorProcess -and $OutputFiles.Length -gt 0 ) {
+            Write-Log "Cannot start new THOR scan as long as old report files are present" -Level "Error"
+            Write-Log "A.) Retrieve the logs and reports needed" -Level "Help"
+            foreach ( $OutFile in $OutputFiles ) {
+                Write-Log "    getfile `"$($OutFile.FullName)`"" -Level "Help"
+            }
+            Write-Log "B.) Use the following command to cleanup the output directory and remove all previous reports" -Level "Help"
+            Write-Log "    run thor-seed.ps1 -parameters `"-Cleanup`"" -Level "Help"
+            Write-Log "C.) Run THOR Seed again" -Level "Help"
+            Write-Log "    run thor-seed.ps1" -Level "Help"
+            return
+        }
+    } else {
+        Write-Log "Checking output folder: $($OutputPath)" -Level "Progress"
+        $OutputFiles = Get-ChildItem -Path "$($OutputPath)\*" -Include "$($Hostname)_thor_*" | Sort CreationTime
+        if ( $OutputFiles.Length -gt 0 ) {
+            Write-Log "Output files that have been generated so far:"
+            foreach ( $OutFile in $OutputFiles ) {
+                Write-Log "$($OutFile.FullName)" -Level "Help"
+            }
+        }
+    }
+}
+
+# Quit if THOR is still running 
+if ( $ThorProcess -and $Cleanup ) {
+    Write-Log "Please wait until the THOR scan is completed until you cleanup the logs (cleanup interrupted)" -Level "Error"
+}
+if ( $ThorProcess ) {
+    # Get current status
+    $LastTxtFile = Get-ChildItem -Path "$($OutputPath)\*" -Include "$($Hostname)_thor_*.txt" | Sort LastWriteTime | Select -Last 1
+    Write-Log "Last written log file is: $($LastTxtFile.FullName)"
+    Write-Log "Trying to get the last 3 log lines" -Level "Progress"
+    # Get last 3 lines 
+    $LastLines = Get-content -Tail 3 $LastTxtFile
+    $OutLines = $LastLines -join "`r`n" | Out-String
+    Write-Log "The last 3 log lines are:"
+    Write-Host $OutLines
+
+    # Quit
+    return
+}
 
 # ---------------------------------------------------------------------
 # Cleanup Only --------------------------------------------------------
