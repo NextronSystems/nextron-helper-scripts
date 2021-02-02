@@ -580,7 +580,7 @@ try {
             }
             #Write-Log "Hint (ATP): You can remove them from the end system by using"
             #foreach ( $OutFile in $OutputFiles ) {
-            #    Write-Log "  remediate file `"$($OutFile.FullName)`" -auto"
+            #    Write-Log "  remediate file `"$($OutFile.FullName)`""
             #} 
         }
     }
