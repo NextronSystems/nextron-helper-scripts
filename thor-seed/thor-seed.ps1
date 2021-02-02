@@ -30,6 +30,8 @@
         Do not write a log file in the current working directory of the PowerShell script named thor-seed.log. 
     .PARAMETER Debugging 
         Do not remove temporary files and show some debug outputs for debugging purposes. 
+    .PARAMETER Cleanup 
+        Do not remove temporary files and show some debug outputs for debugging purposes. 
     .EXAMPLE
         Download THOR from asgard1.intranet.local (download token isn't required in on-premise installations)
         
@@ -98,7 +100,12 @@ param
     [Parameter(HelpMessage='Enables debug output and skips cleanup at the end of the scan')] 
         [ValidateNotNullOrEmpty()] 
         [Alias('D')]    
-        [switch]$Debugging
+        [switch]$Debugging,
+
+    [Parameter(HelpMessage='Removes all log and report files of previous scans')] 
+        [ValidateNotNullOrEmpty()] 
+        [Alias('C')]    
+        [switch]$Cleanup
 )
 
 # Fixing Certain Platform Environments --------------------------------
@@ -346,6 +353,18 @@ if ( $osInfo.ProductType -eq 1 ) {
 if ( $AutoDetectPlatform -ne "" ) {
     Write-Log "Auto Detect Platform: $($AutoDetectPlatform)"
     Write-Log "Note: Some automatic changes have been applied"
+}
+
+
+# ---------------------------------------------------------------------
+# Cleanup Only --------------------------------------------------------
+# ---------------------------------------------------------------------
+if ( $Cleanup ) {
+    Write-Log "Starting cleanup" -Level "Progress"
+    # Remove logs and reports 
+    Remove-Item -Confirm:$False -Recurse -Force -Path "$($OutputPath)\*" -Include "$($Hostname)_thor_*"
+    Write-Log "Cleanup complete"
+    return
 }
 
 # ---------------------------------------------------------------------
