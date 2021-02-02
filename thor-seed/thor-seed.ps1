@@ -170,8 +170,8 @@ $UsePresetConfig = $True
 $PresetConfig_FullLookback = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
 nosoft: true           # Don't trottle the scan, even on single core systems
-global-lookback: true  # 
-lookback: 2            # Log and Eventlog look back time in days
+global-lookback: true  # Apply lookback to all possible modules
+lookback: 4            # Log and Eventlog look back time in days
 # cpulimit: 70         # Limit the CPU usage of the scan
 sigma: true            # Activate Sigma scanning on Eventlogs
 nofserrors: true       # Don't print an error for non-existing directories selected in quick scan 
@@ -209,7 +209,7 @@ nothordb: true     # Don't create a local SQLite database for differential analy
 $PresetConfig_Full = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
 nosoft: true       # Don't trottle the scan, even on single core systems
-lookback: 1        # Log and Eventlog look back time in days
+lookback: 14       # Log and Eventlog look back time in days
 # cpulimit: 70       # Limit the CPU usage of the scan
 sigma: true        # Activate Sigma scanning on Eventlogs
 nofserrors: true   # Don't print an error for non-existing directories selected in quick scan 
@@ -220,8 +220,8 @@ nothordb: true     # Don't create a local SQLite database for differential analy
 
 # SELECT YOU CONFIG
 # Select your preset config
-# Choose between: $PresetConfig_Full, $PresetConfig_Quick, $PresetConfig_Selective
-$PresetConfig = $PresetConfig_FullLookback
+# Choose between: $PresetConfig_Full, $PresetConfig_Quick, $PresetConfig_FullLookback
+$PresetConfig = $PresetConfig_Full
 
 # False Positive Filters
 $UseFalsePositiveFilters = $True
