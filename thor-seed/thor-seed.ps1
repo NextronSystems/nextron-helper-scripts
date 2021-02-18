@@ -164,9 +164,9 @@ $UsePresetConfig = $True
 # Run time: 40 minutes to 6 hours
 # Specifics:
 #   - runs all default modules
-#   - only scans elements that have been changed or created within the last 48 hours
+#   - only scans elements that have been changed or created within the last 14 days
 #   - applies Sigma rules
-# cloudconf: [!]PresetConfig_FullLookback [Full Scan with Lookback] Performs a full disk scan with all modules but only checks elements changed or created within the last 48 hours - best for SOC response to suspicious events (5 to 20 min)
+# cloudconf: [!]PresetConfig_FullLookback [Full Scan with Lookback] Performs a full disk scan with all modules but only checks elements changed or created within the last 14 days - best for SOC response to suspicious events (5 to 20 min)
 $PresetConfig_FullLookback = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
 nosoft: true           # Don't trottle the scan, even on single core systems
@@ -186,7 +186,7 @@ nothordb: true         # Don't create a local SQLite database for differential a
 # Specifics:
 #   - runs all default modules except Eventlog and a full file system scan
 #   - in quick mode only a highly relevant subset of folders gets scanned
-#   - skips Registry checks (key with potential for persistence still get check in Autoruns module)
+#   - skips Registry checks (keys with potential for persistence still get checked in Autoruns module)
 # cloudconf: PresetConfig_Quick [Quick Scan] Performs a quick scan on processes, caches, persistence elements and selected highly relevant directories (3 to 10 min)
 $PresetConfig_Quick = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
@@ -203,9 +203,9 @@ nothordb: true     # Don't create a local SQLite database for differential analy
 # Run time: 40 minutes to 6 hours
 # Specifics:
 #   - runs all default modules
-#   - only scans the last 24h of the Eventlog
+#   - only scans the last 14 days of the Eventlog
 #   - applies Sigma rules
-# cloudconf: PresetConfig_Full [Full Scan] Performs a full disk scan with all modules (40 min to 6 hours) (unusable with Microsoft Defender ATP due to live response session script time limit)
+# cloudconf: PresetConfig_Full [Full Scan] Performs a full disk scan with all modules (40 min to 6 hours)
 $PresetConfig_Full = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
 nosoft: true       # Don't trottle the scan, even on single core systems
