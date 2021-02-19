@@ -7,7 +7,7 @@
 # uninstall: Uninstall Thunderstorm service
 # auto: Don't prompt for a confirmation
 
-VERSION="0.3.0"
+VERSION="0.4.0"
 
 # Settings ------------------------------------------------------------
 SYSTEM_NAME=$(uname -n | tr -d "\n")
