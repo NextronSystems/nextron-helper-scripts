@@ -40,6 +40,26 @@ The steps to install THOR Thunderstorm as a service are:
 2. Switch you context to root `sudo -s`
 3. Run `wget -O - https://raw.githubusercontent.com/NextronSystems/nextron-helper-scripts/master/thunderstorm/thunderstorm-installer.sh | bash`
 
+Install Thunderstorm
+
+```bash
+sudo ./thunderstorm-installer.sh
+```
+
+Silent installation with no prompts
+
+```bash
+sudo ./thunderstorm-installer.sh auto
+```
+
+Uninstall Thunderstorm
+
+```bash
+sudo ./thunderstorm-installer.sh uninstall
+```
+
+You can get a complete setup guide from our support.
+
 #### Tested On
 
 Successfully tested on:
