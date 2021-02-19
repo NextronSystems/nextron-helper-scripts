@@ -236,7 +236,7 @@ fi
 
 # Uninstaller
 if [ "$1" == "uninstall" ]; then
-    read -p "Do you really want to remove THOR Thunderstorm and all its config files? (y/N)" -n 1 -r
+    read -p "Do you really want to remove THOR Thunderstorm and all its config files? (only the user account and log files remain) (y/N)" -n 1 -r
     echo    # (optional) move to a new line
     if [[ ! $REPLY =~ ^[Yy]$ ]]
     then
@@ -252,8 +252,9 @@ if [ "$1" == "uninstall" ]; then
     systemctl disable thor-thunderstorm
     rm -rf /etc/systemd/system/thor-thunderstorm.service
     systemctl daemon-reload
-    userdel thunderstorm
-    rm -rf /home/thunderstorm
+    # Keep user and log files
+    #userdel thunderstorm
+    #rm -rf /home/thunderstorm
     # keep the logs
     #rm -rf /var/log/thunderstorm
     exit 0
