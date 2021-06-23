@@ -3,7 +3,7 @@
 
 # ASGARD URL
 $AsgardURL = "https://asgard.nextron-systems.com:8443/api/v0/licensing/issue"
-$Token = "OJCBETq7VGLjrCes4k4ACCQOzg0AeAoz9Q"
+$Token = ""
 $LicenseFile = "licenses.zip"
 $OutputPath = ".\"
 $ExtractLicenses = $True
