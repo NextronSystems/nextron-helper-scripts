@@ -2,9 +2,9 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.18.0
+# Version: 0.19.0
 # Date Created: 13.07.2020  
-# Last Modified: 01.02.2021
+# Last Modified: 22.10.2021
 ################################################## 
  
 #Requires -Version 3
@@ -31,7 +31,7 @@
     .PARAMETER Debugging 
         Do not remove temporary files and show some debug outputs for debugging purposes. 
     .PARAMETER Cleanup 
-        Do not remove temporary files and show some debug outputs for debugging purposes. 
+        Removes all log and report files of previous scans 
     .EXAMPLE
         Download THOR from asgard1.intranet.local (download token isn't required in on-premise installations)
         
