@@ -2,9 +2,9 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.19.0
+# Version: 0.19.1
 # Date Created: 13.07.2020  
-# Last Modified: 22.10.2021
+# Last Modified: 10.12.2021
 ################################################## 
  
 #Requires -Version 3
