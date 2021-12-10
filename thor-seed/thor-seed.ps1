@@ -337,7 +337,7 @@ Write-Log "Started thor-seed with PowerShell v$($PSVersionTable.PSVersion)"
 # ---------------------------------------------------------------------
 
 # Hostname
-$Hostname = $env:COMPUTERNAME
+$Hostname = [System.Net.Dns]::GetHostName()
 # Evaluate Architecture 
 $ThorArch = "64"
 if ( [System.Environment]::Is64BitOperatingSystem -eq $False ) {
