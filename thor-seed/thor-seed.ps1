@@ -2,9 +2,9 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.19.0
+# Version: 0.19.1
 # Date Created: 13.07.2020  
-# Last Modified: 22.10.2021
+# Last Modified: 23.12.2021
 ################################################## 
  
 #Requires -Version 3
@@ -117,7 +117,7 @@ $OutputPath = $PSScriptRoot
 if ( $OutputPath -eq "" -or $OutputPath.Contains("Windows Defender Advanced Threat Protection") ) {
     $AutoDetectPlatform = "MDATP"
     # Setting output path to easily accessible system root, e.g. C:
-    if ( $OutputPath -eq "" ) { 
+    if ( $OutputPath -eq "" ) {
         $OutputPath = "$($env:ProgramData)\thor"
     }
 }
@@ -506,7 +506,7 @@ try {
         # 401 Unauthorized
         if ( [int]$Response.StatusCode -eq 401 -or [int]$Response.StatusCode -eq 403 ) { 
             Write-Log "The server returned an 40X status code. Did you set an download token? (-Token key)" -Level "Warning"
-            if ( $UseThorCloud ) { 
+            if ( $UseThorCloud ) {
                 Write-Log "Note: you can find your download token here: https://portal.nextron-systems.com/"
             } else {
                 Write-Log "Note: you can find your download token here: https://$($AsgardServer):8443/ui/user-settings#tab-Token"
@@ -522,7 +522,7 @@ try {
         }
         # 500
         if ( [int]$Response.StatusCode -ge 500 ) { 
-            Write-Log "THOR cloud internal error. Please report this error or try again later." -Level "Warning"
+            Write-Log "THOR cloud internal error. Please report this error or try again later. (please verify that you've used a correct Token - copy&paste error?)" -Level "Warning"
         }
         break
     }
