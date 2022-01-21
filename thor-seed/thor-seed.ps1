@@ -2,9 +2,9 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.19.1
-# Date Created: 13.07.2020  
-# Last Modified: 23.12.2021
+# Version: 0.20.0
+# Date Created: 13.07.2020
+# Last Modified: 21.01.2022
 ################################################## 
  
 #Requires -Version 3
@@ -31,7 +31,9 @@
     .PARAMETER Debugging 
         Do not remove temporary files and show some debug outputs for debugging purposes. 
     .PARAMETER Cleanup 
-        Removes all log and report files of previous scans 
+        Removes all log and report files of previous scans
+    .PARAMETER IgnoreSSLErrors 
+        Ignore connection errors caused by self-signed certificates
     .EXAMPLE
         Download THOR from asgard1.intranet.local (download token isn't required in on-premise installations)
         
@@ -105,7 +107,12 @@ param
     [Parameter(HelpMessage='Removes all log and report files of previous scans')] 
         [ValidateNotNullOrEmpty()] 
         [Alias('C')]    
-        [switch]$Cleanup
+        [switch]$Cleanup,
+
+    [Parameter(HelpMessage='Ignore connection errors caused by self-signed certificates')] 
+        [ValidateNotNullOrEmpty()] 
+        [Alias('I')]    
+        [switch]$IgnoreSSLErrors
 )
 
 # Fixing Certain Platform Environments --------------------------------
@@ -133,7 +140,7 @@ if ( $OutputPath -eq "" -or $OutputPath.Contains("Windows Defender Advanced Thre
 #[string]$AsgardServer = "asgard.beta.nextron-systems.com"
 
 # Use THOR Cloudselects only APT relevant directories for file system scan
-#[bool]$UseThorCloud = $True
+[bool]$UseThorCloud = $True
 
 # Download Token
 # usable with THOR Cloud and ASGARD 
@@ -469,8 +476,10 @@ try {
         # Asgard Instance
         if ( $AsgardServer -ne "" ) {
             Write-Log "Attempting to download THOR from $AsgardServer" -Level "Progress"
-            # Generate download URL 
-            $DownloadUrl = "https://$($AsgardServer):8443/api/v0/downloads/thor/thor10-win?hostname=$($Hostname)&type=$($LicenseType)&iocs=%5B%22default%22%5D&token=$($Token)"
+            # Generate download URL - pre ASGARD 2.11
+            #$DownloadUrl = "https://$($AsgardServer):8443/api/v0/downloads/thor/thor10-win?hostname=$($Hostname)&type=$($LicenseType)&iocs=%5B%22default%22%5D&token="
+            # Generate download URL - post ASGARD 2.11
+            $DownloadUrl = "https://$($AsgardServer):8443/api/v1/downloads/thor?os=windows&type=$($LicenseType)&scanner=thor10%4010.6&signatures=signatures&hostname=$($Hostname)&token=$($Token)"
         }
         # Netxron Customer Portal
         elseif ( $UseThorCloud ) {
@@ -496,6 +505,10 @@ try {
         }
         # Actual Download
         Write-Log "Download URL: $($DownloadUrl)"
+        # Ignore SSL/TLS errors
+        if ( $IgnoreSSLErrors ) {
+            [Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+        }
         $WebClient.DownloadFile($DownloadUrl, $TempPackage)
         Write-Log "Successfully downloaded THOR package to $($TempPackage)"
     }
