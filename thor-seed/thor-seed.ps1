@@ -634,14 +634,17 @@ try {
             Write-Log "Output path set by $OutputPath variable doesn't exist and couldn't be created. You'll have to rely on the SYSLOG export or command line output only." -Level "Error"
         }
     }
-    # With Arguments
     if ( $ScanParameters.Count -gt 0 ) {
-        $p = Start-Process $ThorBinary -ArgumentList $ScanParameters -wait -NoNewWindow -PassThru
-    } 
-    # Without Arguments
-    else { 
-        $p = Start-Process $ThorBinary -wait -NoNewWindow -PassThru
+        # With Arguments
+        $p = Start-Process $ThorBinary -ArgumentList $ScanParameters -NoNewWindow -PassThru
+    } else {
+        # Without Arguments
+        $p = Start-Process $ThorBinary -NoNewWindow -PassThru
     }
+    # Cache handle, required to access ExitCode, see https://stackoverflow.com/questions/10262231/obtaining-exitcode-using-start-process-and-waitforexit-instead-of-wait
+    $handle = $p.Handle
+    # Wait using WaitForExit, which handles CTRL+C delayed
+    $p.WaitForExit()
 
     # ERROR -----------------------------------------------------------
     if ( $p.ExitCode -ne 0 ) {
