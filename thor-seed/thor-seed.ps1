@@ -140,7 +140,7 @@ if ( $OutputPath -eq "" -or $OutputPath.Contains("Windows Defender Advanced Thre
 #[string]$AsgardServer = "asgard.beta.nextron-systems.com"
 
 # Use THOR Cloudselects only APT relevant directories for file system scan
-[bool]$UseThorCloud = $True
+#[bool]$UseThorCloud = $True
 
 # Download Token
 # usable with THOR Cloud and ASGARD 
