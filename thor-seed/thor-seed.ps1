@@ -2,9 +2,9 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1  
 # Author: Florian Roth 
-# Version: 0.20.0
+# Version: 0.20.1
 # Date Created: 13.07.2020
-# Last Modified: 21.01.2022
+# Last Modified: 28.02.2022
 ################################################## 
  
 #Requires -Version 3
@@ -34,6 +34,10 @@
         Removes all log and report files of previous scans
     .PARAMETER IgnoreSSLErrors 
         Ignore connection errors caused by self-signed certificates
+    .PARAMETER ProxyAddress
+        Prorxy address to use format: http://host:port
+    .PARAMETER ProxyCredentials
+        Prorxy credentials to authenticate. Bye default Empty.
     .EXAMPLE
         Download THOR from asgard1.intranet.local (download token isn't required in on-premise installations)
         
@@ -112,7 +116,19 @@ param
     [Parameter(HelpMessage='Ignore connection errors caused by self-signed certificates')] 
         [ValidateNotNullOrEmpty()] 
         [Alias('I')]    
-        [switch]$IgnoreSSLErrors
+        [switch]$IgnoreSSLErrors,
+    
+    [Parameter(HelpMessage='Proxy Address')] 
+        [ValidateNotNullOrEmpty()] 
+        [Alias('P')]    
+        [string]$ProxyAddress,
+
+    [Parameter(HelpMessage='Proxy Credentials')] 
+        [ValidateNotNullOrEmpty()] 
+        [Alias('PC')]    
+        [ValidateNotNull()]
+        [System.Management.Automation.PSCredential]
+        [System.Management.Automation.Credential()]$ProxyCredentials = [System.Management.Automation.PSCredential]::Empty
 )
 
 # Fixing Certain Platform Environments --------------------------------
@@ -428,7 +444,7 @@ if ( $ThorProcess ) {
     $LastLines = Get-content -Tail 3 $LastTxtFile
     $OutLines = $LastLines -join "`r`n" | Out-String
     Write-Log "The last 3 log lines are:"
-    Write-Host $OutLines
+    Write-Log $OutLines
 
     # Quit
     return
@@ -469,9 +485,17 @@ try {
             $WebClient.Headers.add('Authorization',$Token)
         }
         # Proxy Support
-        $WebClient.Proxy = [System.Net.WebRequest]::DefaultWebProxy
-        $WebClient.Proxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials
-
+        if ( $ProxyAddress ) {
+            $WebClient.Proxy = New-Object System.Net.WebProxy($ProxyAddress)
+        } else {
+            $WebClient.Proxy = [System.Net.WebRequest]::DefaultWebProxy
+        }
+        # https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/add-credentials-to-powershell-functions?view=powershell-5.1
+        if ( $ProxyCredentials -ne [System.Management.Automation.PSCredential]::Empty ) {
+            $WebClient.Proxy.Credentials = $ProxyCredentials
+        } else {
+            $WebClient.Proxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials
+        }
         # Download Source
         # Asgard Instance
         if ( $AsgardServer -ne "" ) {
