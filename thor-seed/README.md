@@ -31,7 +31,7 @@ THOR Seed retrieves the THOR program package from different locations:
 For details on ASGARD see [ASGARD's product page](https://www.nextron-systems.com/asgard-management-center/).
 
 ```console
-thor-seed.ps1 -AsgardServer asgard1.internal -token 74y47Wjw3wWRKlmBu4EUWFzGY-QWgdmzRZ
+thor-seed.ps1 -AsgardServer asgard1.internal -Token 74y47Wjw3wWRKlmBu4EUWFzGY-QWgdmzRZ
 ```
 
 ### From THOR Cloud
@@ -81,6 +81,22 @@ Do not write a log file in the current working directory of the PowerShell scrip
 ### -Debug
 
 Do not remove temporary files and show some debug outputs for debugging purposes.
+
+### -Cleanup
+
+Removes all log and report files of previous scans
+
+### -IgnoreSSLErrors
+
+Ignore connection errors caused by self-signed certificates
+
+### -ProxyAddress
+
+Proxy address to use format: http://host:port
+
+### -ProxyCredentials
+
+Proxy credentials to authenticate. Bye default Empty.
 
 ## Preconfigured Variables
 
@@ -229,6 +245,10 @@ If you get the following error message `cannot be loaded because the execution o
 
 ```console
 powershell.exe -ExecutionPolicy Bypass .\thor-seed.ps1 -CustomUrl https://my-webserver.internal/thor/thor-packed.zip
+```
+
+```console
+powershell.exe -ExecutionPolicy Bypass .\thor-seed.ps1 -AsgardServer asgard1.internal -Token 74y47Wjw3wWRKlmBu4EUWFzGY-QWgdmzRZ -IgnoreSSLErrors
 ```
 
 ### Quick Web Server Setup
