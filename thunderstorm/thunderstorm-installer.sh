@@ -7,7 +7,7 @@
 # uninstall: Uninstall Thunderstorm service
 # auto: Don't prompt for a confirmation
 
-VERSION="0.4.0"
+VERSION="0.4.1"
 
 # Settings ------------------------------------------------------------
 SYSTEM_NAME=$(uname -n | tr -d "\n")
@@ -219,7 +219,7 @@ echo "   /_/ /_//_/\_,_/_//_/\_,_/\__/_/ /___/\__/\___/_/ /_/_/_/ "
 echo "   v$VERSION"
 echo " "
 echo "   THOR Thunderstorm Service Installer"
-echo "   Florian Roth, September 2020"
+echo "   Florian Roth, August 2022"
 echo "=============================================================="
 
 # Root check
@@ -317,6 +317,8 @@ fi
 # New installation 
 if [ ! -f /opt/nextron/thunderstorm/config/thor.yml ]; then 
     new_inst=1
+else
+    new_inst=0
 fi
 
 # Add a local user
