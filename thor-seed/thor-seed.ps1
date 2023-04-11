@@ -183,7 +183,7 @@ $UsePresetConfig = $True
 # cloudconf: [!]PresetConfig_FullLookback [Full Scan with Lookback] Performs a full disk scan with all modules but only checks elements changed or created within the last 14 days - best for SOC response to suspicious events (5 to 20 min)
 $PresetConfig_FullLookback = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
-nosoft: true           # Don't trottle the scan, even on single core systems
+nosoft: true           # Don't throttle the scan, even on single core systems
 global-lookback: true  # Apply lookback to all possible modules
 lookback: 14           # Log and Eventlog look back time in days
 # cpulimit: 70         # Limit the CPU usage of the scan
@@ -204,7 +204,7 @@ nothordb: true         # Don't create a local SQLite database for differential a
 # cloudconf: PresetConfig_Quick [Quick Scan] Performs a quick scan on processes, caches, persistence elements and selected highly relevant directories (3 to 10 min)
 $PresetConfig_Quick = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
-nosoft: true       # Don't trottle the scan, even on single core systems
+nosoft: true       # Don't throttle the scan, even on single core systems
 quick: true        # Quick scan mode
 nofserrors: true   # Don't print an error for non-existing directories selected in quick scan 
 nocsv: true        # Don't create CSV output file with all suspicious files
@@ -222,7 +222,7 @@ nothordb: true     # Don't create a local SQLite database for differential analy
 # cloudconf: PresetConfig_Full [Full Scan] Performs a full disk scan with all modules (40 min to 6 hours)
 $PresetConfig_Full = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
-nosoft: true       # Don't trottle the scan, even on single core systems
+nosoft: true       # Don't throttle the scan, even on single core systems
 lookback: 14       # Log and Eventlog look back time in days
 # cpulimit: 70     # Limit the CPU usage of the scan
 sigma: true        # Activate Sigma scanning on Eventlogs
