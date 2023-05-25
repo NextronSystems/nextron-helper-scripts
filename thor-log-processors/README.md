@@ -1,3 +1,6 @@
+**You can now use [thor-util's logconvert](https://thor-util-manual.nextron-systems.com/en/latest/usage/log-conversion.html)
+to convert logs from one format to another.**
+
 # THOR Log Processor Scripts
 
 Scripts that help you process the different THOR output files
