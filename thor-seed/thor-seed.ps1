@@ -153,6 +153,10 @@ if ($OutputPath -eq "" -or $OutputPath.Contains("Windows Defender Advanced Threa
 # usable with THOR Cloud and ASGARD 
 #[string]$Token = "YOUR DOWNLOAD TOKEN"
 
+# Ignore SSL Errors
+# Helpful when using a local ASGARD instance
+#$IgnoreSSLErrors = $True
+
 # Random Delay (added before the scan start to distribute the initial load)
 #[int]$RandomDelay = 1
 
