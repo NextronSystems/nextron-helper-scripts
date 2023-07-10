@@ -6,7 +6,7 @@ This folder contains scripts that help you with the installation and maintenance
 
 The Thunderstorm installer scripts facilitate the installation of THOR Thunderstorm as service.
 
-All you need is a valid "service" license.
+All you need is a valid [THOR thunderstorm "service" license](https://www.nextron-systems.com/thor-thunderstorm/).
 
 All installer scripts include an "uninstall" function that completely removes all components after a testing phase.
 
