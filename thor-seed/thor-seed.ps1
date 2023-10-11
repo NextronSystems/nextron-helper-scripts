@@ -120,22 +120,6 @@ param
     $ProxyCredentials = [System.Management.Automation.PSCredential]::Empty
 )
 
-# Fixing Certain Platform Environments --------------------------------
-$AutoDetectPlatform = ""
-$OutputPath = $PSScriptRoot
-
-# Microsoft Defender ATP - Live Response
-# $PSScriptRoot is empty or contains path to Windows Defender
-if ($OutputPath -eq "" -or $OutputPath.Contains("Windows Defender Advanced Threat Protection"))
-{
-    $AutoDetectPlatform = "MDATP"
-    # Setting output path to easily accessible system root, e.g. C:
-    if ($OutputPath -eq "")
-    {
-        $OutputPath = "$($env:ProgramData)\thor"
-    }
-}
-
 # #####################################################################
 # Presets -------------------------------------------------------------
 # #####################################################################
@@ -250,6 +234,25 @@ Could not get files of directory
 Signature file is older than 60 days
 \\Our-Custom-Software\\v1.[0-9]+\\
 "@
+
+# Fixing Certain Platform Environments --------------------------------
+$AutoDetectPlatform = ""
+if ($OutputPath -eq "")
+{
+    $OutputPath = $PSScriptRoot
+}
+
+# Microsoft Defender ATP - Live Response
+# $PSScriptRoot is empty or contains path to Windows Defender
+if ($OutputPath -eq "" -or $OutputPath.Contains("Windows Defender Advanced Threat Protection"))
+{
+    $AutoDetectPlatform = "MDATP"
+    # Setting output path to easily accessible system root, e.g. C:
+    if ($OutputPath -eq "")
+    {
+        $OutputPath = "$($env:ProgramData)\thor"
+    }
+}
 
 # Global Variables ----------------------------------------------------
 $global:NoLog = $NoLog
