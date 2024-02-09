@@ -65,6 +65,7 @@ You can get a complete setup guide from our support.
 Successfully tested on:
 
 - Debian 10
+- Debian 12
 
 ## Thunderstorm Updater
 
