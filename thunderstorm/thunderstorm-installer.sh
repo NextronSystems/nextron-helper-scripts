@@ -167,6 +167,16 @@ function check_req
             exit 1
         fi
     fi
+    chmod_avail=$(command -v chmod)
+    if [[ -z $chmod_avail ]]; then
+        # Try to add /sbin to PATH
+        export PATH="$PATH:/sbin/"
+        chmod_avail=$(command -v chmod)
+        if [[ -z $chmod_avail ]]; then
+            log error "The 'chmod' command can't be found but is needed"
+            exit 1
+        fi
+    fi
     log debug "All required utilities found."
 }
 
@@ -366,6 +376,7 @@ fi
 
 # Copy license to config directory
 cp ./*.lic /etc/thunderstorm/
+chmod 644 /etc/thunderstorm/*.lic
 
 # Create some more directories
 log info "Creating directory for temporary files (samples, logs) ..."
