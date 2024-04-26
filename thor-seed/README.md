@@ -40,7 +40,7 @@ thor-seed.ps1 -AsgardServer asgard1.internal -Token 74y47Wjw3wWRKlmBu4EUWFzGY-QW
 thor-seed.ps1 -UseThorCloud -ApiKey 12345678
 ```
 
-### From a custom THOR or THOR Lite package 
+### From a custom THOR or THOR Lite package
 
 For details on how to create such a package, see [custom THOR package](#custom-thor-package).
 
@@ -56,11 +56,19 @@ Enter the server name (FQDN) or IP address of your ASGARD instance.
 
 ### -UseThorCloud
 
-Use the official Nextron THOR Cloud instead of an ASGARD instance. 
+Use the official Nextron THOR Cloud instead of an ASGARD instance.
 
 ### -Token
 
 Download token used when connecting to Nextron's customer portal or an ASGARD instance.
+
+### -Cockpit
+
+Use your on-premise Analysis Cockpit to ingest the THOR Logs.
+
+### -CockpitKey
+
+Use this API key for the upload to the Analysis Cockpit. We recommend that you create a new user and role in your Analysis Cockpit. The role should only include the `Upload Events` permissions.
 
 ### -CustomUrl
 
@@ -68,7 +76,7 @@ Allows you to define a custom URL from which the THOR package is retrieved. Make
 
 ### -RandomDelay
 
-A random delay in seconds before the scan starts. This is helpful when you start the script on thousands of end systems to avoid system (VM host) or network  (package retrieval) overload by distributing the load over a defined time range.
+A random delay in seconds before the scan starts. This is helpful when you start the script on thousands of end systems to avoid system (VM host) or network (package retrieval) overload by distributing the load over a defined time range.
 
 ### -OutputPath
 
@@ -109,11 +117,11 @@ The config files have a YAML format. It is easy to read and write. All command l
 ```powershell
 # Predefined YAML Config
 $UsePresetConfig = $True
-# Lines with '#' are commented and inactive. We decided to give you 
-# some examples for your convenience. You can see all possible command 
-# line parameters running `thor64.exe --help` or on this web page: 
-# https://github.com/NextronSystems/nextron-helper-scripts/tree/master/thor-help 
-# Only the long forms of the parameters are accepted in the YAML config. 
+# Lines with '#' are commented and inactive. We decided to give you
+# some examples for your convenience. You can see all possible command
+# line parameters running `thor64.exe --help` or on this web page:
+# https://github.com/NextronSystems/nextron-helper-scripts/tree/master/thor-help
+# Only the long forms of the parameters are accepted in the YAML config.
 
 # PRESET CONFIGS
 
@@ -130,7 +138,7 @@ module:
   - Autoruns
   - Rootkit
   - ShimCache
-  - DNSCache 
+  - DNSCache
 # - RegistryChecks
   - ScheduledTasks
   - FileScan
@@ -140,7 +148,7 @@ nosoft: true       # Don't trottle the scan, even on single core systems
 lookback: 1        # Log and Eventlog look back time in days
 sigma: true        # Activate Sigma scanning on Eventlogs
 quick: true        # Quick scan mode
-nofserrors: true   # Don't print an error for non-existing directories selected in quick scan 
+nofserrors: true   # Don't print an error for non-existing directories selected in quick scan
 nocsv: true        # Don't create CSV output file with all suspicious files
 noscanid: true     # Don't print a scan ID at the end of each line (only useful in SIEM import use cases)
 nothordb: true     # Don't create a local SQLite database for differential analysis of multiple scans
@@ -151,7 +159,7 @@ nothordb: true     # Don't create a local SQLite database for differential analy
 
 THOR Lite is a trimmed-down free version of our scanner THOR. Your can find more information and a download form [here](https://www.nextron-systems.com/thor-lite/). THOR Seed works with a THOR Lite package provided as ZIP archive on a web server. Make sure to add a valid THOR Lite license to that ZIP archive.
 
-The cutoms THOR Lite package can be used as follows: 
+The cutoms THOR Lite package can be used as follows:
 
 ```console
 thor-seed.ps1 -CustomUrl https://web1.internal/thor/thor10lite-with-lic.zip
@@ -234,7 +242,7 @@ quick: true
 
 ```yml
 global-lookback: true
-lookback: 2  # scan only elements created or changed within the last 2 days
+lookback: 2 # scan only elements created or changed within the last 2 days
 ```
 
 ## Helpful Hints
