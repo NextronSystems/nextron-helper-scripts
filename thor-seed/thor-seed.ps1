@@ -712,7 +712,7 @@ try
             break
         }
     }
-    # 
+
     # Selecting the first location with THOR binaries
     $LiteAddon = ""
     foreach ($ThorLoc in $ThorLocations)
@@ -735,7 +735,7 @@ try
     }
     $ThorBinaryName = "thor$($ThorArch)$($LiteAddon).exe"
     $ThorBinary = Join-Path $ThorBinDirectory $ThorBinaryName
-    # 
+
     # Use Preset Config (instead of external .yml file)
     $Config = ""
     if ($UsePresetConfig)
@@ -746,7 +746,7 @@ try
         Out-File -FilePath $TempConfig -InputObject $PresetConfig -Encoding ASCII
         $Config = $TempConfig
     }
-    # 
+
     # Use Preset False Positive Filters
     if ($UseFalsePositiveFilters)
     {
@@ -756,14 +756,14 @@ try
         Write-Log "Writing temporary false positive filter file to $($TempFPFilter)" -Level "Progress"
         Out-File -FilePath $TempFPFilter -InputObject $PresetFalsePositiveFilters -Encoding ASCII
     }
-    # 
+
     # Scan parameters 
     [string[]]$ScanParameters = @()
     if ($Config)
     {
         $ScanParameters += "-t $($Config)"
     }
-    # 
+
     # Run THOR
     Write-Log "Starting THOR scan ..." -Level "Progress"
     Write-Log "Command Line: $($ThorBinary) $($ScanParameters)"
@@ -795,7 +795,7 @@ try
     $handle = $p.Handle
     # Wait using WaitForExit, which handles CTRL+C delayed
     $p.WaitForExit()
-    # 
+
     # ERROR -----------------------------------------------------------
     if ($p.ExitCode -ne 0)
     {
