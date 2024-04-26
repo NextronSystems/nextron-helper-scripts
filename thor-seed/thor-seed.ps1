@@ -692,147 +692,147 @@ catch
 # ---------------------------------------------------------------------
 # Run THOR ------------------------------------------------------------
 # ---------------------------------------------------------------------
-# try
-# {
-#     # Finding THOR binaries in extracted package
-#     Write-Log "Trying to find THOR binary in location $($ThorDirectory)" -Level "Progress"
-#     $ThorLocations = Get-ChildItem -Path $ThorDirectory -Recurse -Filter thor*.exe
-#     # Error - not a single THOR binary found
-#     if ($ThorLocations.count -lt 1)
-#     {
-#         Write-Log "THOR binaries not found in directory $($ThorDirectory)" -Level "Error"
-#         if ($CustomUrl)
-#         {
-#             Write-Log 'When using a custom ZIP package, make sure that the THOR binaries are in the root of the archive and not any sub-folder. (e.g. ./thor64.exe and ./signatures)' -Level "Warning"
-#             break
-#         }
-#         else
-#         {
-#             Write-Log "This seems to be a bug. You could check the temporary THOR package yourself in location $($ThorDirectory)." -Level "Warning"
-#             break
-#         }
-#     }
-    
-#     # Selecting the first location with THOR binaries
-#     $LiteAddon = ""
-#     foreach ($ThorLoc in $ThorLocations)
-#     {
-#         # Skip THOR Util findings
-#         if ($ThorLoc.Name -like "*-util*")
-#         {
-#             continue
-#         }
-#         # Save the directory name of the found THOR binary
-#         $ThorBinDirectory = $ThorLoc.DirectoryName
-#         # Is it a Lite version
-#         if ($ThorLoc.Name -like "*-lite*")
-#         {
-#             Write-Log "THOR Lite detected"
-#             $LiteAddon = "-lite"
-#         }
-#         Write-Log "Using THOR binaries in location $($ThorBinDirectory)."
-#         break
-#     }
-#     $ThorBinaryName = "thor$($ThorArch)$($LiteAddon).exe"
-#     $ThorBinary = Join-Path $ThorBinDirectory $ThorBinaryName
-    
-#     # Use Preset Config (instead of external .yml file)
-#     $Config = ""
-#     if ($UsePresetConfig)
-#     {
-#         Write-Log 'Using preset config defined in script header due to $UsePresetConfig = $True'
-#         $TempConfig = Join-Path $ThorBinDirectory "config.yml"
-#         Write-Log "Writing temporary config to $($TempConfig)" -Level "Progress"
-#         Out-File -FilePath $TempConfig -InputObject $PresetConfig -Encoding ASCII
-#         $Config = $TempConfig
-#     }
-    
-#     # Use Preset False Positive Filters
-#     if ($UseFalsePositiveFilters)
-#     {
-#         Write-Log 'Using preset false positive filters due to $UseFalsePositiveFilters = $True'
-#         $ThorConfigDir = Join-Path $ThorBinDirectory "config"
-#         $TempFPFilter = Join-Path $ThorConfigDir "false_positive_filters.cfg"
-#         Write-Log "Writing temporary false positive filter file to $($TempFPFilter)" -Level "Progress"
-#         Out-File -FilePath $TempFPFilter -InputObject $PresetFalsePositiveFilters -Encoding ASCII
-#     }
-    
-#     # Scan parameters 
-#     [string[]]$ScanParameters = @()
-#     if ($Config)
-#     {
-#         $ScanParameters += "-t $($Config)"
-#     }
-    
-#     # Run THOR
-#     Write-Log "Starting THOR scan ..." -Level "Progress"
-#     Write-Log "Command Line: $($ThorBinary) $($ScanParameters)"
-#     Write-Log "Writing output files to $($OutputPath)"
-#     if (-not (Test-Path -Path $OutputPath))
-#     {
-#         Write-Log "Output path does not exists yet. Trying to create it ..." -Level "Progress"
-#         try
-#         {
-#             New-Item -ItemType Directory -Force -Path $OutputPath
-#             Write-Log "Output path $($OutputPath) successfully created."
-#         }
-#         catch
-#         {
-#             Write-Log "Output path set by $OutputPath variable doesn't exist and couldn't be created. You'll have to rely on the SYSLOG export or command line output only." -Level "Error"
-#         }
-#     }
-#     if ($ScanParameters.Count -gt 0)
-#     {
-#         # With Arguments
-#         $p = Start-Process $ThorBinary -ArgumentList $ScanParameters -NoNewWindow -PassThru
-#     }
-#     else
-#     {
-#         # Without Arguments
-#         $p = Start-Process $ThorBinary -NoNewWindow -PassThru
-#     }
-#     # Cache handle, required to access ExitCode, see https://stackoverflow.com/questions/10262231/obtaining-exitcode-using-start-process-and-waitforexit-instead-of-wait
-#     $handle = $p.Handle
-#     # Wait using WaitForExit, which handles CTRL+C delayed
-#     $p.WaitForExit()
-    
-#     # ERROR -----------------------------------------------------------
-#     if ($p.ExitCode -ne 0)
-#     {
-#         Write-Log "THOR scan terminated with error code $($p.ExitCode)" -Level "Error"
-#     }
-#     else
-#     {
-#         # SUCCESS -----------------------------------------------------
-#         Write-Log "Successfully finished THOR scan"
-#         # Output File Info
-#         $OutputFiles = Get-ChildItem -Path "$($OutputPath)\*" -Include "$($Hostname)_thor_$($DateStamp)*"
-#         if ($OutputFiles.Length -gt 0)
-#         {
-#             foreach ($OutFile in $OutputFiles)
-#             {
-#                 Write-Log "Generated output file: $($OutFile.FullName)"
-#             }
-#         }
-#         # Give help depending on the auto-detected platform 
-#         if ($AutoDetectPlatform -eq "MDATP" -and $OutputFiles.Length -gt 0)
-#         {
-#             Write-Log "Hint (ATP): You can use the following commands to retrieve the scan logs"
-#             foreach ($OutFile in $OutputFiles)
-#             {
-#                 Write-Log "  getfile `"$($OutFile.FullName)`""
-#             }
-#             #Write-Log "Hint (ATP): You can remove them from the end system by using"
-#             #foreach ( $OutFile in $OutputFiles ) {
-#             #    Write-Log "  remediate file `"$($OutFile.FullName)`""
-#             #} 
-#         }
-#     }
-# }
-# catch
-# {
-#     Write-Log "Unknown error during THOR scan $_" -Level "Error"
-# }
+try
+{
+    # Finding THOR binaries in extracted package
+    Write-Log "Trying to find THOR binary in location $($ThorDirectory)" -Level "Progress"
+    $ThorLocations = Get-ChildItem -Path $ThorDirectory -Recurse -Filter thor*.exe
+    # Error - not a single THOR binary found
+    if ($ThorLocations.count -lt 1)
+    {
+        Write-Log "THOR binaries not found in directory $($ThorDirectory)" -Level "Error"
+        if ($CustomUrl)
+        {
+            Write-Log 'When using a custom ZIP package, make sure that the THOR binaries are in the root of the archive and not any sub-folder. (e.g. ./thor64.exe and ./signatures)' -Level "Warning"
+            break
+        }
+        else
+        {
+            Write-Log "This seems to be a bug. You could check the temporary THOR package yourself in location $($ThorDirectory)." -Level "Warning"
+            break
+        }
+    }
+    # 
+    # Selecting the first location with THOR binaries
+    $LiteAddon = ""
+    foreach ($ThorLoc in $ThorLocations)
+    {
+        # Skip THOR Util findings
+        if ($ThorLoc.Name -like "*-util*")
+        {
+            continue
+        }
+        # Save the directory name of the found THOR binary
+        $ThorBinDirectory = $ThorLoc.DirectoryName
+        # Is it a Lite version
+        if ($ThorLoc.Name -like "*-lite*")
+        {
+            Write-Log "THOR Lite detected"
+            $LiteAddon = "-lite"
+        }
+        Write-Log "Using THOR binaries in location $($ThorBinDirectory)."
+        break
+    }
+    $ThorBinaryName = "thor$($ThorArch)$($LiteAddon).exe"
+    $ThorBinary = Join-Path $ThorBinDirectory $ThorBinaryName
+    # 
+    # Use Preset Config (instead of external .yml file)
+    $Config = ""
+    if ($UsePresetConfig)
+    {
+        Write-Log 'Using preset config defined in script header due to $UsePresetConfig = $True'
+        $TempConfig = Join-Path $ThorBinDirectory "config.yml"
+        Write-Log "Writing temporary config to $($TempConfig)" -Level "Progress"
+        Out-File -FilePath $TempConfig -InputObject $PresetConfig -Encoding ASCII
+        $Config = $TempConfig
+    }
+    # 
+    # Use Preset False Positive Filters
+    if ($UseFalsePositiveFilters)
+    {
+        Write-Log 'Using preset false positive filters due to $UseFalsePositiveFilters = $True'
+        $ThorConfigDir = Join-Path $ThorBinDirectory "config"
+        $TempFPFilter = Join-Path $ThorConfigDir "false_positive_filters.cfg"
+        Write-Log "Writing temporary false positive filter file to $($TempFPFilter)" -Level "Progress"
+        Out-File -FilePath $TempFPFilter -InputObject $PresetFalsePositiveFilters -Encoding ASCII
+    }
+    # 
+    # Scan parameters 
+    [string[]]$ScanParameters = @()
+    if ($Config)
+    {
+        $ScanParameters += "-t $($Config)"
+    }
+    # 
+    # Run THOR
+    Write-Log "Starting THOR scan ..." -Level "Progress"
+    Write-Log "Command Line: $($ThorBinary) $($ScanParameters)"
+    Write-Log "Writing output files to $($OutputPath)"
+    if (-not (Test-Path -Path $OutputPath))
+    {
+        Write-Log "Output path does not exists yet. Trying to create it ..." -Level "Progress"
+        try
+        {
+            New-Item -ItemType Directory -Force -Path $OutputPath
+            Write-Log "Output path $($OutputPath) successfully created."
+        }
+        catch
+        {
+            Write-Log "Output path set by $OutputPath variable doesn't exist and couldn't be created. You'll have to rely on the SYSLOG export or command line output only." -Level "Error"
+        }
+    }
+    if ($ScanParameters.Count -gt 0)
+    {
+        # With Arguments
+        $p = Start-Process $ThorBinary -ArgumentList $ScanParameters -NoNewWindow -PassThru
+    }
+    else
+    {
+        # Without Arguments
+        $p = Start-Process $ThorBinary -NoNewWindow -PassThru
+    }
+    # Cache handle, required to access ExitCode, see https://stackoverflow.com/questions/10262231/obtaining-exitcode-using-start-process-and-waitforexit-instead-of-wait
+    $handle = $p.Handle
+    # Wait using WaitForExit, which handles CTRL+C delayed
+    $p.WaitForExit()
+    # 
+    # ERROR -----------------------------------------------------------
+    if ($p.ExitCode -ne 0)
+    {
+        Write-Log "THOR scan terminated with error code $($p.ExitCode)" -Level "Error"
+    }
+    else
+    {
+        # SUCCESS -----------------------------------------------------
+        Write-Log "Successfully finished THOR scan"
+        # Output File Info
+        $OutputFiles = Get-ChildItem -Path "$($OutputPath)\*" -Include "$($Hostname)_thor_$($DateStamp)*"
+        if ($OutputFiles.Length -gt 0)
+        {
+            foreach ($OutFile in $OutputFiles)
+            {
+                Write-Log "Generated output file: $($OutFile.FullName)"
+            }
+        }
+        # Give help depending on the auto-detected platform 
+        if ($AutoDetectPlatform -eq "MDATP" -and $OutputFiles.Length -gt 0)
+        {
+            Write-Log "Hint (ATP): You can use the following commands to retrieve the scan logs"
+            foreach ($OutFile in $OutputFiles)
+            {
+                Write-Log "  getfile `"$($OutFile.FullName)`""
+            }
+            #Write-Log "Hint (ATP): You can remove them from the end system by using"
+            #foreach ( $OutFile in $OutputFiles ) {
+            #    Write-Log "  remediate file `"$($OutFile.FullName)`""
+            #} 
+        }
+    }
+}
+catch
+{
+    Write-Log "Unknown error during THOR scan $_" -Level "Error"
+}
 
 # ---------------------------------------------------------------------
 # Analysis Cockpit Upload ---------------------------------------------
