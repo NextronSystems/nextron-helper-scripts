@@ -193,12 +193,12 @@ $UsePresetConfig = $True
 
 # FULL with Lookback
 # Preset template for a complete scan with a lookback of 2 days
-# Run time: 40 minutes to 6 hours
+# Run time: 20 to 40 minutes
 # Specifics:
 #   - runs all default modules
 #   - only scans elements that have been changed or created within the last 14 days
 #   - applies Sigma rules
-# cloudconf: [!]PresetConfig_FullLookback [Full Scan with Lookback] Performs a full disk scan with all modules but only checks elements changed or created within the last 14 days - best for SOC response to suspicious events (5 to 20 min)
+# cloudconf: [!]PresetConfig_FullLookback [Full Scan with Lookback] Performs a full disk scan with all modules but only checks elements changed or created within the last 14 days - best for SOC response to suspicious events (20 to 40 min)
 $PresetConfig_FullLookback = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
 nosoft: true           # Don't throttle the scan, even on single core systems
@@ -219,7 +219,7 @@ nothordb: true         # Don't create a local SQLite database for differential a
 #   - runs all default modules except Eventlog and a full file system scan
 #   - in quick mode only a highly relevant subset of folders gets scanned
 #   - skips Registry checks (keys with potential for persistence still get checked in Autoruns module)
-# cloudconf: PresetConfig_Quick [Quick Scan] Performs a quick scan on processes, caches, persistence elements and selected highly relevant directories (3 to 10 min)
+# cloudconf: PresetConfig_Quick [Quick Scan] Performs a quick scan on processes, caches, persistence elements and selected highly relevant directories (10 to 20 min)
 $PresetConfig_Quick = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
 nosoft: true       # Don't throttle the scan, even on single core systems
