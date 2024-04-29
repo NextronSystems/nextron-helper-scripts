@@ -44,15 +44,15 @@
         Proxy credentials to authenticate. Bye default Empty.
     .EXAMPLE
         Download THOR from asgard1.intranet.local (download token isn't required in on-premise installations)
-        
+
         thor-seed -AsgardServer asgard1.intranet.local
     .EXAMPLE
         Download THOR from THOR Cloud using a download token
-        
+
         thor-seed -UseThorCloud -Token wWfC0A0kMziG7GRJ5XEcGdZKw3BrigavxAdw9C9yxJX
     .EXAMPLE
         Download THOR or THOR Lite package from a custom URL and execute it. (this also works with THOR Lite)
-         
+
         thor-seed -CustomUrl https://web1.server.local/thor/mythor-pack.zip
     .NOTES
         You can set a static download token and ASGARD server in this file (see below in the parameters)
