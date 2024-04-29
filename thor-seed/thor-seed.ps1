@@ -345,7 +345,7 @@ function Write-Log
         [ValidateNotNullOrEmpty()]
         [String]$Level = "Info"
     )
-    
+
     # Indicator
     $Indicator = "[+] "
     if ($Level -eq "Warning")
@@ -877,17 +877,17 @@ $(Get-Content -Raw $NewestLogFile)
             $StatusCode = $Response.StatusCode
 
             # Check for specific status codes
-            if ($StatusCode = "200") {
+            if ($StatusCode -eq "200") {
                 Write-Log "Upload successful" -Level "Progress"
             }
-            elseif ($StatusCode = "400") {
+            elseif ($StatusCode -eq "400") {
                 Write-Log "Invalid Parameters, check the API Documentation" -Level "Error"
                 Write-Log "Server Response: $($Response.Content)" -Level "Error"
             }
-            elseif ($StatusCode = "403") {
+            elseif ($StatusCode -eq "403") {
                 Write-Log "Insufficient permissions" -Level "Error"
             }
-            elseif ($StatusCode = "500") {
+            elseif ($StatusCode -eq "500") {
                 Write-Log "Internal Server Error" -Level "Error"
                 Write-Log "Server Response: $($Response.Content)" -Level "Error"
             }
