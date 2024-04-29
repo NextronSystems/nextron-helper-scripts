@@ -1,27 +1,27 @@
 ##################################################
 # Script Title: THOR Download and Execute Script
-# Script File Name: thor-seed.ps1  
-# Author: Florian Roth 
+# Script File Name: thor-seed.ps1
+# Author: Florian Roth
 # Version: 0.20.1
 # Date Created: 13.07.2020
 # Last Modified: 26.04.2024
-################################################## 
+##################################################
 
 #Requires -Version 3
 
-<#   
-    .SYNOPSIS   
+<#
+    .SYNOPSIS
         The "thor-seed" script downloads THOR and executes it
     .DESCRIPTION
         The "thor-seed" script downloads THOR from an ASGARD instance, the Nextron cloud or a custom URL and executes THOR on the local system writing log files or transmitting syslog messages to a remote system
     .PARAMETER AsgardServer
-        Enter the server name (FQDN) or IP address of your ASGARD instance. 
+        Enter the server name (FQDN) or IP address of your ASGARD instance.
     .PARAMETER UseThorCloud
-        Use the official Nextron cloud systems instead of an ASGARD instance. 
+        Use the official Nextron cloud systems instead of an ASGARD instance.
     .PARAMETER Token
         Download token used when connecting to Nextron's cloud service instead of an ASGARD instance.
     .PARAMETER CustomUrl
-        Allows you to define a custom URL from which the THOR package is retrieved. Make sure that the package contains the full program folder, provide it as ZIP archive and add valid licenses (Incident Response license, THOR Lite license). THOR Seed will automatically find the THOR binaries in the extracted archive. 
+        Allows you to define a custom URL from which the THOR package is retrieved. Make sure that the package contains the full program folder, provide it as ZIP archive and add valid licenses (Incident Response license, THOR Lite license). THOR Seed will automatically find the THOR binaries in the extracted archive.
     .PARAMETER Cockpit
         Use this Analysis Cockpit to upload the THOR results
     .PARAMETER CockpitKey
@@ -31,9 +31,9 @@
     .PARAMETER OutputPath
         Directory to write all output files to (default is script directory)
     .PARAMETER NoLog
-        Do not write a log file in the current working directory of the PowerShell script named thor-seed.log. 
+        Do not write a log file in the current working directory of the PowerShell script named thor-seed.log.
     .PARAMETER Debugging
-        Do not remove temporary files and show some debug outputs for debugging purposes. 
+        Do not remove temporary files and show some debug outputs for debugging purposes.
     .PARAMETER Cleanup
         Removes all log and report files of previous scans
     .PARAMETER IgnoreSSLErrors
@@ -57,9 +57,9 @@
     .NOTES
         You can set a static download token and ASGARD server in this file (see below in the parameters)
 
-        We recommend using the configuration sections in this script to adjust the scan settings. 
-        It includes presets for scan configs and false positive filters. 
-        See the $PresetConfig.. and $PresetFalsePositiveFilters below. 
+        We recommend using the configuration sections in this script to adjust the scan settings.
+        It includes presets for scan configs and false positive filters.
+        See the $PresetConfig.. and $PresetFalsePositiveFilters below.
 
 #>
 
@@ -157,7 +157,7 @@ param
 #[bool]$UseThorCloud = $True
 
 # Download Token
-# usable with THOR Cloud and ASGARD 
+# usable with THOR Cloud and ASGARD
 #[string]$Token = "YOUR DOWNLOAD TOKEN"
 
 # Analysis Cockpit (IP or FQDN)
@@ -183,11 +183,11 @@ param
 
 # Predefined YAML Config
 $UsePresetConfig = $True
-# Lines with '#' are commented and inactive. We decided to give you 
-# some examples for your convenience. You can see all possible command 
-# line parameters running `thor64.exe --help` or on this web page: 
-# https://github.com/NextronSystems/nextron-helper-scripts/tree/master/thor-help 
-# Only the long forms of the parameters are accepted in the YAML config. 
+# Lines with '#' are commented and inactive. We decided to give you
+# some examples for your convenience. You can see all possible command
+# line parameters running `thor64.exe --help` or on this web page:
+# https://github.com/NextronSystems/nextron-helper-scripts/tree/master/thor-help
+# Only the long forms of the parameters are accepted in the YAML config.
 
 # PRESET CONFIGS
 
@@ -206,7 +206,7 @@ global-lookback: true  # Apply lookback to all possible modules
 lookback: 14           # Log and Eventlog look back time in days
 # cpulimit: 70         # Limit the CPU usage of the scan
 sigma: true            # Activate Sigma scanning on Eventlogs
-nofserrors: true       # Don't print an error for non-existing directories selected in quick scan 
+nofserrors: true       # Don't print an error for non-existing directories selected in quick scan
 nocsv: true            # Don't create CSV output file with all suspicious files
 noscanid: true         # Don't print a scan ID at the end of each line (only useful in SIEM import use cases)
 nothordb: true         # Don't create a local SQLite database for differential analysis of multiple scans
@@ -224,7 +224,7 @@ $PresetConfig_Quick = @"
 rebase-dir: $($OutputPath)  # Path to store all output files (default: script location)
 nosoft: true       # Don't throttle the scan, even on single core systems
 quick: true        # Quick scan mode
-nofserrors: true   # Don't print an error for non-existing directories selected in quick scan 
+nofserrors: true   # Don't print an error for non-existing directories selected in quick scan
 nocsv: true        # Don't create CSV output file with all suspicious files
 noscanid: true     # Don't print a scan ID at the end of each line (only useful in SIEM import use cases)
 nothordb: true     # Don't create a local SQLite database for differential analysis of multiple scans
@@ -244,7 +244,7 @@ nosoft: true       # Don't throttle the scan, even on single core systems
 lookback: 14       # Log and Eventlog look back time in days
 # cpulimit: 70     # Limit the CPU usage of the scan
 sigma: true        # Activate Sigma scanning on Eventlogs
-nofserrors: true   # Don't print an error for non-existing directories selected in quick scan 
+nofserrors: true   # Don't print an error for non-existing directories selected in quick scan
 nocsv: true        # Don't create CSV output file with all suspicious files
 noscanid: true     # Don't print a scan ID at the end of each line (only useful in SIEM import use cases)
 nothordb: true     # Don't create a local SQLite database for differential analysis of multiple scans
@@ -257,7 +257,7 @@ $PresetConfig = $PresetConfig_FullLookback
 
 # False Positive Filters
 $UseFalsePositiveFilters = $True
-# The following new line separated false positive filters get 
+# The following new line separated false positive filters get
 # applied to all log lines as regex values.
 $PresetFalsePositiveFilters = @"
 Could not get files of directory
@@ -288,7 +288,7 @@ if ($OutputPath -eq "" -or $OutputPath.Contains("Windows Defender Advanced Threa
 $global:NoLog = $NoLog
 
 # Show Help -----------------------------------------------------------
-# No ASGARD server 
+# No ASGARD server
 if ($Args.Count -eq 0 -and $AsgardServer -eq "" -and $UseThorCloud -eq $False -and $CustomUrl -eq "")
 {
     Get-Help $MyInvocation.MyCommand.Definition -Detailed
@@ -346,7 +346,7 @@ function Write-Log
         [String]$Level = "Info"
     )
     
-    # Indicator 
+    # Indicator
     $Indicator = "[+] "
     if ($Level -eq "Warning")
     {
@@ -368,7 +368,7 @@ function Write-Log
     {
         $Indicator = ""
     }
-    
+
     # Output Pipe
     if ($Level -eq "Warning")
     {
@@ -382,7 +382,7 @@ function Write-Log
     {
         Write-Host "$($Indicator)$($Entry)"
     }
-    
+
     # Log File
     if ($global:NoLog -eq $False)
     {
@@ -416,7 +416,7 @@ Write-Log "Started thor-seed with PowerShell v$($PSVersionTable.PSVersion)"
 
 # Hostname
 $Hostname = [System.Net.Dns]::GetHostName()
-# Evaluate Architecture 
+# Evaluate Architecture
 $ThorArch = "64"
 if ([System.Environment]::Is64BitOperatingSystem -eq $False)
 {
@@ -432,7 +432,7 @@ if ($osInfo.ProductType -eq 1)
     $PortalLicenseType = "workstation"
 }
 
-# Output Info on Auto-Detection 
+# Output Info on Auto-Detection
 if ($AutoDetectPlatform -ne "")
 {
     Write-Log "Auto Detect Platform: $($AutoDetectPlatform)"
@@ -449,10 +449,10 @@ if ($ThorProcess)
 }
 
 # Output File Overview
-$OutputFiles = Get-ChildItem -Path "$($OutputPath)\*" -Include "$($Hostname)_thor_*" | Sort CreationTime
+$OutputFiles = Get-ChildItem -Path "$($OutputPath)\*" -Include "$($Hostname)_thor_*" | Sort-Object CreationTime
 if (-not $Cleanup)
 {
-    # Give help depending on the auto-detected platform 
+    # Give help depending on the auto-detected platform
     if ($AutoDetectPlatform -eq "MDATP")
     {
         Write-Log "Detected Platform: Microsoft Defender ATP"
@@ -471,7 +471,7 @@ if (-not $Cleanup)
                 Write-Log "The scan hasn't produced any output files yet."
             }
         }
-        # Cannot run new THOR instance as long as old log files are present 
+        # Cannot run new THOR instance as long as old log files are present
         if (-not $ThorProcess -and $OutputFiles.Length -gt 0)
         {
             Write-Log "Cannot start new THOR scan as long as old report files are present" -Level "Error"
@@ -505,7 +505,7 @@ if (-not $Cleanup)
     }
 }
 
-# Quit if THOR is still running 
+# Quit if THOR is still running
 if ($ThorProcess -and $Cleanup)
 {
     Write-Log "Please wait until the THOR scan is completed until you cleanup the logs (cleanup interrupted)" -Level "Error"
@@ -513,15 +513,15 @@ if ($ThorProcess -and $Cleanup)
 if ($ThorProcess)
 {
     # Get current status
-    $LastTxtFile = Get-ChildItem -Path "$($OutputPath)\*" -Include "$($Hostname)_thor_*.txt" | Sort LastWriteTime | Select -Last 1
+    $LastTxtFile = Get-ChildItem -Path "$($OutputPath)\*" -Include "$($Hostname)_thor_*.txt" | Sort-Object LastWriteTime | Select-Object -Last 1
     Write-Log "Last written log file is: $($LastTxtFile.FullName)"
     Write-Log "Trying to get the last 3 log lines" -Level "Progress"
-    # Get last 3 lines 
+    # Get last 3 lines
     $LastLines = Get-content -Tail 3 $LastTxtFile
     $OutLines = $LastLines -join "`r`n" | Out-String
     Write-Log "The last 3 log lines are:"
     Write-Log $OutLines
-    
+
     # Quit
     return
 }
@@ -532,7 +532,7 @@ if ($ThorProcess)
 if ($Cleanup)
 {
     Write-Log "Starting cleanup" -Level "Progress"
-    # Remove logs and reports 
+    # Remove logs and reports
     Remove-Item -Confirm:$False -Recurse -Force -Path "$($OutputPath)\*" -Include "$($Hostname)_thor_*"
     Write-Log "Cleanup complete"
     return
@@ -547,14 +547,14 @@ try
     $LocalDelay = Get-Random -Minimum 0 -Maximum $RandomDelay
     Write-Log "Adding random delay to the scan start (max. $($RandomDelay)): sleeping for $($LocalDelay) seconds" -Level "Progress"
     Start-Sleep -Seconds $LocalDelay
-    
+
     # Presets
     # Temporary directory for the THOR package
     $ThorDirectory = New-TemporaryDirectory
     $TempPackage = Join-Path $ThorDirectory "thor-package.zip"
-    
+
     # Generate Download URL
-    # Web Client 
+    # Web Client
     try
     {
         # Web Client
@@ -611,7 +611,7 @@ try
             $WebClient.Headers.add('X-Token', $Token)
             $WebClient.Headers.add('X-Hostname', $Hostname)
         }
-        # Custom URL 
+        # Custom URL
         elseif ($CustomUrl -ne "")
         {
             $DownloadUrl = $CustomUrl
@@ -670,7 +670,7 @@ try
         Write-Log "The following error occurred: $_" -Level "Error"
         break
     }
-    
+
     # Unzip
     try
     {
@@ -757,7 +757,7 @@ try
         Out-File -FilePath $TempFPFilter -InputObject $PresetFalsePositiveFilters -Encoding ASCII
     }
 
-    # Scan parameters 
+    # Scan parameters
     [string[]]$ScanParameters = @()
     if ($Config)
     {
@@ -814,7 +814,7 @@ try
                 Write-Log "Generated output file: $($OutFile.FullName)"
             }
         }
-        # Give help depending on the auto-detected platform 
+        # Give help depending on the auto-detected platform
         if ($AutoDetectPlatform -eq "MDATP" -and $OutputFiles.Length -gt 0)
         {
             Write-Log "Hint (ATP): You can use the following commands to retrieve the scan logs"
@@ -825,7 +825,7 @@ try
             #Write-Log "Hint (ATP): You can remove them from the end system by using"
             #foreach ( $OutFile in $OutputFiles ) {
             #    Write-Log "  remediate file `"$($OutFile.FullName)`""
-            #} 
+            #}
         }
     }
 }
