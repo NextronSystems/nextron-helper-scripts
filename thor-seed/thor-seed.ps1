@@ -192,8 +192,8 @@ $UsePresetConfig = $True
 # PRESET CONFIGS
 
 # FULL with Lookback
-# Preset template for a complete scan with a lookback of 2 days
-# Run time: 20 to 40 minutes
+# Preset template for a complete scan with a lookback of 14 days
+# Run time: 30 to 60 minutes
 # Specifics:
 #   - runs all default modules
 #   - only scans elements that have been changed or created within the last 14 days
@@ -214,7 +214,7 @@ nothordb: true         # Don't create a local SQLite database for differential a
 
 # QUICK
 # Preset template for a quick scan
-# Run time: 10 to 20 minutes
+# Run time: 10 to 30 minutes
 # Specifics:
 #   - runs all default modules except Eventlog and a full file system scan
 #   - in quick mode only a highly relevant subset of folders gets scanned
