@@ -193,7 +193,7 @@ $UsePresetConfig = $True
 
 # FULL with Lookback
 # Preset template for a complete scan with a lookback of 14 days
-# lookback in conjunction with the global-lookback parameter applies the lookback to all possible modules (e.g. Eventlog, Filescan, etc.)
+# Hint: lookback in conjunction with the global-lookback parameter applies the "lookback" value to all possible modules (e.g. Filescan, etc.). This reduces scan time significantly.
 # Run time: 30 to 60 minutes
 # Specifics:
 #   - runs all default modules
@@ -233,7 +233,7 @@ nothordb: true     # Don't create a local SQLite database for differential analy
 
 # FULL
 # Preset template for a complete scan
-# lookback per default only applies to the Eventlog module, meaning no Eventlog entries older than 14 days get scanned, but all other modules scan the full system (e.g. Filescan, etc.)
+# Hint: lookback per default only applies to the Eventlog module, meaning no Eventlog entries older than 14 days get scanned, but all other modules scan the full system (e.g. Filescan, etc.). This will reduce scan time a little bit, especially on systems with many Eventlog entries.
 # Run time: 40 minutes to 6 hours
 # Specifics:
 #   - runs all default modules
