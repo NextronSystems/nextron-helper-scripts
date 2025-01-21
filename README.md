@@ -23,7 +23,7 @@ The converter allows you to convert the timestamp of old THOR logs to the new RF
 
 ### THOR Seed
 
-Written for: THOR, ASGARD v3, THOR Cloud  
+Written for: THOR, ASGARD v3, Nextron Portal (referenced as "THOR Cloud" in the script)
 Language: PowerShell
 
 THOR Seed is a lightweight PowerShell script that facilitates the deployment of THOR in cases in which you can't or don't want to use an agent for a continous compromise assessment.
