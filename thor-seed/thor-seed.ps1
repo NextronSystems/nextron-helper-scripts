@@ -592,7 +592,7 @@ try
             # Generate download URL - pre ASGARD 2.11
             #$DownloadUrl = "https://$($AsgardServer):8443/api/v0/downloads/thor/thor10-win?hostname=$($Hostname)&type=$($LicenseType)&iocs=%5B%22default%22%5D&token="
             # Generate download URL - post ASGARD 2.11
-            $DownloadUrl = "https://$($AsgardServer):8443/api/v1/downloads/thor?os=windows&type=$($LicenseType)&scanner=thor10%4010.6&signatures=signatures&hostname=$($Hostname)&token=$($Token)"
+            $DownloadUrl = "https://$($AsgardServer):8443/api/v1/downloads/thor?os=windows&type=$($LicenseType)&scanner=thor10%40latest&signatures=signatures&hostname=$($Hostname)&token=$($Token)"
         }
         # Netxron Customer Portal
         elseif ($UseThorCloud)
@@ -873,7 +873,9 @@ $(Get-Content -Raw $NewestLogFile)
             $CockpitURI = "https://$($Cockpit)/api/scans/upload"
 
             # Ignore self-signed certificates
-            [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+            if ($IgnoreSSLErrors) {
+                [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+            }
 
             $Response = Invoke-RestMethod -Method Post -Uri $CockpitURI -Headers $Headers -Body $Body -ErrorAction Stop
             $StatusCode = $Response.StatusCode
@@ -894,7 +896,7 @@ $(Get-Content -Raw $NewestLogFile)
                 Write-Log "Server Response: $($Response.Content)" -Level "Error"
             }
             else {
-                Write-Log "Unknow error" -Level "Error"
+                Write-Log "Unknown error" -Level "Error"
                 Write-Log "Server Response: $($Response.Content)" -Level "Error"
             }
         }
