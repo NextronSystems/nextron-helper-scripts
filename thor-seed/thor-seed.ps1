@@ -245,6 +245,25 @@ param
 # Choose an output directory for all output files (log, HTML report)
 #[string]$OutputPath = "C:\Windows\Temp"
 
+# Fixing Certain Platform Environments --------------------------------
+$AutoDetectPlatform = ""
+if ($OutputPath -eq "")
+{
+    $OutputPath = $PSScriptRoot
+}
+
+# Microsoft Defender ATP - Live Response
+# $PSScriptRoot is empty or contains path to Windows Defender
+if ($OutputPath -eq "" -or $OutputPath.Contains("Windows Defender Advanced Threat Protection"))
+{
+    $AutoDetectPlatform = "MDATP"
+    # Setting output path to easily accessible system root, e.g. C:
+    if ($OutputPath -eq "")
+    {
+        $OutputPath = "$($env:ProgramData)\thor"
+    }
+}
+
 # Predefined YAML Config
 $UsePresetConfig = $True
 # Lines with '#' are commented and inactive. We decided to give you
@@ -330,25 +349,6 @@ Could not get files of directory
 Signature file is older than 60 days
 \\Our-Custom-Software\\v1.[0-9]+\\
 "@
-
-# Fixing Certain Platform Environments --------------------------------
-$AutoDetectPlatform = ""
-if ($OutputPath -eq "")
-{
-    $OutputPath = $PSScriptRoot
-}
-
-# Microsoft Defender ATP - Live Response
-# $PSScriptRoot is empty or contains path to Windows Defender
-if ($OutputPath -eq "" -or $OutputPath.Contains("Windows Defender Advanced Threat Protection"))
-{
-    $AutoDetectPlatform = "MDATP"
-    # Setting output path to easily accessible system root, e.g. C:
-    if ($OutputPath -eq "")
-    {
-        $OutputPath = "$($env:ProgramData)\thor"
-    }
-}
 
 # Global Variables ----------------------------------------------------
 $global:NoLog = $NoLog
@@ -706,6 +706,34 @@ if ($AutoDetectPlatform -ne "")
 {
     Write-Log "Auto Detect Platform: $($AutoDetectPlatform)"
     Write-Log "Note: Some automatic changes have been applied"
+}
+
+# Report source precedence explicitly when more than one THOR source is configured.
+$RequestedThorSources = @()
+if (-not [string]::IsNullOrEmpty($AsgardServer))
+{
+    $RequestedThorSources += "ASGARD (-AsgardServer $AsgardServer)"
+}
+if ($UseCloud)
+{
+    $RequestedThorSources += "Nextron cloud (-UseCloud)"
+}
+if (-not [string]::IsNullOrEmpty($CustomUrl))
+{
+    $RequestedThorSources += "custom URL (-CustomUrl $(Get-RedactedUrl -Url $CustomUrl))"
+}
+if ($RequestedThorSources.Count -gt 1)
+{
+    $SelectedThorSource = "custom URL (-CustomUrl)"
+    if (-not [string]::IsNullOrEmpty($AsgardServer))
+    {
+        $SelectedThorSource = "ASGARD (-AsgardServer $AsgardServer)"
+    }
+    elseif ($UseCloud)
+    {
+        $SelectedThorSource = "Nextron cloud (-UseCloud)"
+    }
+    Write-Log "Multiple THOR sources specified: $($RequestedThorSources -join ', '). Using $SelectedThorSource based on precedence: -AsgardServer, then -UseCloud, then -CustomUrl." -Level "Warning"
 }
 
 # ---------------------------------------------------------------------
@@ -1193,6 +1221,7 @@ if (-not $script:ExecutionFailed)
                 }
             }
             Write-Log "Command Line: $($ThorBinary) $($ScanParametersForLog -join ' ')"
+            Write-Log "Working Directory: $($ThorBinDirectory)"
             Write-Log "Writing output files to $($OutputPath)"
             if (-not (Test-Path -Path $OutputPath))
             {
@@ -1210,12 +1239,12 @@ if (-not $script:ExecutionFailed)
             if ($ScanParameters.Count -gt 0)
             {
                 # With Arguments
-                $p = Start-Process $ThorBinary -ArgumentList $ScanParameters -NoNewWindow -PassThru
+                $p = Start-Process -FilePath $ThorBinary -ArgumentList $ScanParameters -WorkingDirectory $ThorBinDirectory -NoNewWindow -PassThru
             }
             else
             {
                 # Without Arguments
-                $p = Start-Process $ThorBinary -NoNewWindow -PassThru
+                $p = Start-Process -FilePath $ThorBinary -WorkingDirectory $ThorBinDirectory -NoNewWindow -PassThru
             }
             # Cache handle, required to access ExitCode, see https://stackoverflow.com/questions/10262231/obtaining-exitcode-using-start-process-and-waitforexit-instead-of-wait
             $handle = $p.Handle
@@ -1480,3 +1509,4 @@ if ($script:SummaryGuidance.Count -gt 0)
 Write-Log "==========================================================="
 [Environment]::ExitCode = $script:ExitCode
 $global:LASTEXITCODE = $script:ExitCode
+exit $script:ExitCode
