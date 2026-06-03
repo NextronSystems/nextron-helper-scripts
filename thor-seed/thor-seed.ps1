@@ -247,18 +247,18 @@ param
 
 # Fixing Certain Platform Environments --------------------------------
 $AutoDetectPlatform = ""
-if ($OutputPath -eq "")
+if ([string]::IsNullOrWhiteSpace($OutputPath))
 {
     $OutputPath = $PSScriptRoot
 }
 
 # Microsoft Defender ATP - Live Response
 # $PSScriptRoot is empty or contains path to Windows Defender
-if ($OutputPath -eq "" -or $OutputPath.Contains("Windows Defender Advanced Threat Protection"))
+if ([string]::IsNullOrWhiteSpace($OutputPath) -or $OutputPath.Contains("Windows Defender Advanced Threat Protection"))
 {
     $AutoDetectPlatform = "MDATP"
     # Setting output path to easily accessible system root, e.g. C:
-    if ($OutputPath -eq "")
+    if ([string]::IsNullOrWhiteSpace($OutputPath))
     {
         $OutputPath = "$($env:ProgramData)\thor"
     }
