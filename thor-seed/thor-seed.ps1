@@ -2,9 +2,9 @@
 # Script Title: THOR Download and Execute Script
 # Script File Name: thor-seed.ps1
 # Author: Florian Roth
-# Version: 2.0.0
+# Version: 2.0.1
 # Date Created: 13.07.2020
-# Last Modified: 11.02.2026
+# Last Modified: 12.06.2026
 ##################################################
 
 #Requires -Version 3
@@ -654,7 +654,7 @@ Write-Host "   / / / _  / /_/ / , _/ _\ \/ -_) -_) _  /   /_\ /_\      "
 Write-Host "  /_/ /_//_/\____/_/|_| /___/\__/\__/\_,_/    \ / \ /      "
 Write-Host "                                               \   /       "
 Write-Host "  Nextron Systems, by Florian Roth              \_/        "
-Write-Host "  v2.0.0 - Last Modified: 11.02.2026                       "
+Write-Host "  v2.0.1 - Last Modified: 12.06.2026                       "
 Write-Host "==========================================================="
 
 # Measure time
