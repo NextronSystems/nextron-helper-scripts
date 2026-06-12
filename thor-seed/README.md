@@ -303,6 +303,24 @@ Unblock-File -Path .\thor-seed.ps1
 Get-ChildItem -Path .\thor-seed\ -Recurse | Unblock-File
 ```
 
+You can also unblock the file in Windows Explorer by opening the file properties, enabling `Unblock` and applying the change.
+
+If the prompt appears while running the script, `R` (`Run once`) continues this single run. This does not remove the mark-of-the-web from the file, so Windows may show the same prompt again during the next execution. Use `Unblock-File` if you trust the script and want to avoid repeated prompts.
+
+### Help Output Warning
+
+When THOR Seed is started without a THOR source, it tries to show its PowerShell help text. On systems with incomplete local PowerShell help data or blocked/downloaded script metadata, PowerShell may print a warning similar to:
+
+```console
+Get-Help : Get-Help could not find .\thor-seed.ps1 in a help file in this session.
+```
+
+This warning does not indicate a THOR scan failure. Start THOR Seed with one of the required source parameters, for example `-AsgardServer`, `-UseCloud` or `-CustomUrl`. To view the usage information, use this README or run:
+
+```powershell
+Get-Help .\thor-seed.ps1 -Detailed
+```
+
 ### Execution
 
 If you get the following error message `cannot be loaded because the execution of scripts is disabled on this system` you may run the script as follows:
