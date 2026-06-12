@@ -19,6 +19,7 @@ The script itself writes an extensive log named `thor-seed.log`. You can deactiv
 ## Requirements
 
 - PowerShell version 3
+- PowerShell FullLanguage mode
 - 70 MB of temporary disk space
 - Network connection to a THOR source (ASGARD, Nextron cloud servers, THOR/THOR Lite as ZIP on a web server)
 
@@ -48,6 +49,12 @@ For details on how to create such a package, see [custom THOR package](#custom-t
 thor-seed.ps1 -CustomUrl https://web1.internal/thor/mythor-pack.zip
 ```
 
+If more than one THOR source is configured, THOR Seed uses the following precedence and prints a warning that explains which source is selected:
+
+1. `-AsgardServer`
+2. `-UseCloud`
+3. `-CustomUrl`
+
 ## Parameters
 
 ### -AsgardServer
@@ -76,15 +83,21 @@ Use this API key for the upload to the Analysis Cockpit. We recommend that you c
 
 ### -CustomUrl
 
-Allows you to define a custom URL from which the THOR package is retrieved. Make sure that the package contains the full program folder, provide it as ZIP archive and add valid licenses (Incident Response license, THOR Lite license). THOR Seed will automaticall find the THOR binaries in the extracted archive.
+Allows you to define a custom URL from which the THOR package is retrieved. Make sure that the package contains the full program folder, provide it as ZIP archive and add valid licenses (Incident Response license, THOR Lite license). THOR Seed will automatically find the THOR binaries in the extracted archive.
 
 ### -RandomDelay
 
 A random delay in seconds before the scan starts. This is helpful when you start the script on thousands of end systems to avoid system (VM host) or network (package retrieval) overload by distributing the load over a defined time range.
 
+### -CpuLimit
+
+Limit THOR CPU usage by passing `--cpulimit <value>` to THOR. The value must be between 1 and 100.
+
 ### -OutputPath
 
 The output path is a custom directory to write all output files to (default is the script's directory). Output files include a text log, an HTML report and a CSV file for all filescan findings regarded as suspicious or malicious.
+
+When preset configs are enabled, THOR Seed also writes this effective output path into the generated THOR config as `rebase-dir`.
 
 ### -NoLog
 
@@ -102,13 +115,17 @@ Removes all log and report files of previous scans
 
 Ignore connection errors caused by self-signed certificates
 
+### -NoResControl
+
+Disable THOR resource safeguards by passing `--norescontrol` to THOR. This is an advanced option and can increase the risk of swapping and system performance impact.
+
 ### -ProxyAddress
 
 Proxy address to use format: http://host:port
 
 ### -ProxyCredentials
 
-Proxy credentials to authenticate. Bye default Empty.
+Proxy credentials to authenticate. By default empty.
 
 ## Preconfigured Variables
 
@@ -148,7 +165,7 @@ module:
   - FileScan
   - ProcessCheck
   - Eventlog
-nosoft: true       # Don't trottle the scan, even on single core systems
+nosoft: true       # Don't throttle the scan, even on single core systems
 lookback: 1        # Log and Eventlog look back time in days
 sigma: true        # Activate Sigma scanning on Eventlogs
 quick: true        # Quick scan mode
@@ -161,9 +178,9 @@ nothordb: true     # Don't create a local SQLite database for differential analy
 
 ## THOR Lite
 
-THOR Lite is a trimmed-down free version of our scanner THOR. Your can find more information and a download form [here](https://www.nextron-systems.com/thor-lite/). THOR Seed works with a THOR Lite package provided as ZIP archive on a web server. Make sure to add a valid THOR Lite license to that ZIP archive.
+THOR Lite is a trimmed-down free version of our scanner THOR. You can find more information and a download form [here](https://www.nextron-systems.com/thor-lite/). THOR Seed works with a THOR Lite package provided as ZIP archive on a web server. Make sure to add a valid THOR Lite license to that ZIP archive.
 
-The cutoms THOR Lite package can be used as follows:
+The custom THOR Lite package can be used as follows:
 
 ```console
 thor-seed.ps1 -CustomUrl https://web1.internal/thor/thor10lite-with-lic.zip
@@ -180,6 +197,8 @@ In order to prepare a custom package you have to repack the THOR package that yo
 ![THOR Seed Custom Package](https://raw.githubusercontent.com/NextronSystems/nextron-helper-scripts/master/images/thor_seed_custom_zip.png "Prepare a custom THOR package with license")
 
 Make sure to check the description on [preconfigured variables](#preconfigured-variables) and the YAML config templates.
+
+THOR Seed executes THOR from the directory in which it finds the THOR binary. Keep relative resource directories such as `config`, `custom-signatures` and `signatures` next to the THOR binaries inside the package.
 
 You can remove some folders to save disk space and reduce network load when running the script on thousands of systems. The required files and directories are the following. You can safely remove all other files and directories.
 
@@ -222,7 +241,7 @@ You can remove some folders to save disk space and reduce network load when runn
     └── upx.exe.sig
 ```
 
-Importan: The listing above does not include the license file, which is obviously also required.
+Important: The listing above does not include the license file, which is obviously also required.
 
 ## Microsoft Defender ATP
 
@@ -230,7 +249,7 @@ We use THOR Seed with [Microsoft Defender ATP](https://docs.microsoft.com/en-us/
 
 ### Issue with Live Response Session in Microsoft Defender ATP
 
-There are some pitfalls that I'd like to highlight when running THOR in live response sessions. The first problem is the different command line. All parameters for THOR Seed have to be passed as string of a seperate parameter of the tool "run".
+There are some pitfalls that I'd like to highlight when running THOR in live response sessions. The first problem is the different command line. All parameters for THOR Seed have to be passed as string of a separate parameter of the tool "run".
 
 ```console
 run thor-seed.ps1 -parameters "-CustomUrl https://my.server.local/share/thor-pack.zip"
@@ -250,6 +269,18 @@ lookback: 2 # scan only elements created or changed within the last 2 days
 ```
 
 ## Helpful Hints
+
+### PowerShell Language Mode
+
+THOR Seed requires PowerShell FullLanguage mode. It uses .NET APIs for TLS handling, downloads, ZIP extraction and process setup. If App Control for Business / WDAC, AppLocker, JEA or endpoint security policy restrictions force the session into ConstrainedLanguage mode, THOR Seed cannot run reliably.
+
+You can check the current language mode with:
+
+```powershell
+$ExecutionContext.SessionState.LanguageMode
+```
+
+For details, see Microsoft's [script enforcement documentation](https://learn.microsoft.com/en-us/windows/security/application-security/application-control/app-control-for-business/design/script-enforcement).
 
 ### Unblocking the Script
 
@@ -283,6 +314,10 @@ powershell.exe -ExecutionPolicy Bypass .\thor-seed.ps1 -CustomUrl https://my-web
 ```console
 powershell.exe -ExecutionPolicy Bypass .\thor-seed.ps1 -AsgardServer asgard1.internal -Token 74y47Wjw3wWRKlmBu4EUWFzGY-QWgdmzRZ -IgnoreSSLErrors
 ```
+
+### Exit Codes
+
+THOR Seed returns `0` on success. It returns a nonzero exit code if a preflight check, download, extraction, scan execution or Analysis Cockpit upload fails. This allows deployment tooling and live response automation to detect failed runs reliably.
 
 ### Quick Web Server Setup
 
