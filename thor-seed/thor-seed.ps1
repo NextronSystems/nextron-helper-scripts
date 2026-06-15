@@ -196,44 +196,27 @@ param
     $ProxyCredentials = [System.Management.Automation.PSCredential]::Empty
 )
 
-# Detect Constrained Language Mode
-
-try
+# THOR Seed requires FullLanguage mode because it uses .NET APIs for TLS,
+# download handling, ZIP extraction, and process setup.
+$LanguageMode = $ExecutionContext.SessionState.LanguageMode.ToString()
+if ($LanguageMode -ne "FullLanguage")
 {
-    $LanguageMode = $ExecutionContext.SessionState.LanguageMode
+    Write-Host ""
+    Write-Host "===========================================================" -ForegroundColor Red
+    Write-Host " ERROR: Unsupported PowerShell Language Mode detected" -ForegroundColor Red
+    Write-Host "===========================================================" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "Current Language Mode : $LanguageMode"
+    Write-Host ""
+    Write-Host "THOR Seed requires FullLanguage mode and cannot continue."
+    Write-Host "This is commonly caused by App Control for Business / WDAC,"
+    Write-Host "AppLocker, JEA, or endpoint security policy restrictions."
+    Write-Host ""
+    Write-Host "Allow or sign thor-seed.ps1 according to your policy and rerun it."
+    Write-Host "Reference: https://learn.microsoft.com/en-us/windows/security/application-security/application-control/app-control-for-business/design/script-enforcement"
+    Write-Host ""
 
-    if ($LanguageMode -eq 'ConstrainedLanguage')
-    {
-        Write-Host ""
-        Write-Host "===========================================================" -ForegroundColor Red
-        Write-Host " ERROR: PowerShell Constrained Language Mode detected" -ForegroundColor Red
-        Write-Host "===========================================================" -ForegroundColor Red
-        Write-Host ""
-        Write-Host "Current Language Mode : $LanguageMode"
-        Write-Host ""
-        Write-Host "THOR Seed requires FullLanguage mode because it uses:"
-        Write-Host " - .NET classes"
-        Write-Host " - Add-Type"
-        Write-Host " - File and ZIP operations"
-        Write-Host " - WebClient and TLS settings"
-        Write-Host ""
-        Write-Host "The script cannot continue in Constrained Language Mode."
-        Write-Host ""
-        Write-Host "Common causes:"
-        Write-Host " - WDAC (Windows Defender Application Control)"
-        Write-Host " - AppLocker"
-        Write-Host " - JEA (Just Enough Administration)"
-        Write-Host " - Security product restrictions"
-        Write-Host ""
-
-        exit 1001
-    }
-
-    Write-Host "[+] PowerShell Language Mode: $LanguageMode"
-}
-catch
-{
-    Write-Host "[!] Unable to determine PowerShell Language Mode"
+    exit 7
 }
 
 # #####################################################################
