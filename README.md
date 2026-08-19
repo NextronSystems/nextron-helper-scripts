@@ -2,16 +2,16 @@
 
 Public tools, scripts or code snippets that can help when working with our products
 
-## ASGARD
+## Management Center
 
-### Bulk License Generator for ASGARD v2
+### Bulk License Generator for Management Center v2
 
-Written for: ASGARD v2  
+Written for: Management Center v2  
 Language: Windows Batch
 
-A Windows Batch files that allows you to generate and retrieve licenses for a list of hosts from a remote ASGARD v2 system.
+A Windows Batch files that allows you to generate and retrieve licenses for a list of hosts from a remote Management Center v2 system.
 
-## ASGARD Analysis Cockpit
+## Analysis Cockpit
 
 ### THOR Timestamp Converter
 
@@ -24,7 +24,7 @@ The converter allows you to convert the timestamp of old THOR logs to the new RF
 
 ### THOR Seed
 
-Written for: THOR, ASGARD v3, Nextron Portal (referenced as "THOR Cloud" in the script)
+Written for: THOR, Management Center v3, Nextron Portal (referenced as "THOR Cloud" in the script)
 Language: PowerShell
 
 THOR Seed is a lightweight PowerShell script that facilitates the deployment of THOR in cases in which you can't or don't want to use an agent for a continous compromise assessment.
