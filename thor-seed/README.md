@@ -21,18 +21,18 @@ The script itself writes an extensive log named `thor-seed.log`. You can deactiv
 - PowerShell version 3
 - PowerShell FullLanguage mode
 - 70 MB of temporary disk space
-- Network connection to a THOR source (ASGARD, Nextron cloud servers, THOR/THOR Lite as ZIP on a web server)
+- Network connection to a THOR source (Management Center, Nextron cloud servers, THOR/THOR Lite as ZIP on a web server)
 
 ## THOR Sources
 
 THOR Seed retrieves the THOR program package from different locations:
 
-### From an on-premise ASGARD server
+### From an on-premise Management Center server
 
-For details on ASGARD see [ASGARD's product page](https://www.nextron-systems.com/asgard-management-center/).
+For details see the [Management Center's product page](https://www.nextron-systems.com/management-center/).
 
 ```console
-thor-seed.ps1 -AsgardServer asgard1.internal -Token 74y47Wjw3wWRKlmBu4EUWFzGY-QWgdmzRZ
+thor-seed.ps1 -ManagementCenter mgmt-center.internal -Token 74y47Wjw3wWRKlmBu4EUWFzGY-QWgdmzRZ
 ```
 
 ### From Nextron cloud servers
@@ -51,23 +51,23 @@ thor-seed.ps1 -CustomUrl https://web1.internal/thor/mythor-pack.zip
 
 If more than one THOR source is configured, THOR Seed uses the following precedence and prints a warning that explains which source is selected:
 
-1. `-AsgardServer`
+1. `-ManagementCenter`
 2. `-UseCloud`
 3. `-CustomUrl`
 
 ## Parameters
 
-### -AsgardServer
+### -ManagementCenter
 
-Enter the server name (FQDN) or IP address of your ASGARD instance.
+Enter the server name (FQDN) or IP address of your Management Center instance.
 
 ### -UseCloud
 
-Use the official Nextron cloud servers instead of an ASGARD instance.
+Use the official Nextron cloud servers instead of an Management Center instance.
 
 ### -Token
 
-Download token used when connecting to Nextron's customer portal or an ASGARD instance.
+Download token used when connecting to Nextron's customer portal or an Management Center instance.
 
 ### -Comment
 
@@ -315,7 +315,7 @@ When THOR Seed is started without a THOR source, it tries to show its PowerShell
 Get-Help : Get-Help could not find .\thor-seed.ps1 in a help file in this session.
 ```
 
-This warning does not indicate a THOR scan failure. Start THOR Seed with one of the required source parameters, for example `-AsgardServer`, `-UseCloud` or `-CustomUrl`. To view the usage information, use this README or run:
+This warning does not indicate a THOR scan failure. Start THOR Seed with one of the required source parameters, for example `-ManagementCenter`, `-UseCloud` or `-CustomUrl`. To view the usage information, use this README or run:
 
 ```powershell
 Get-Help .\thor-seed.ps1 -Detailed
@@ -330,7 +330,7 @@ powershell.exe -ExecutionPolicy Bypass .\thor-seed.ps1 -CustomUrl https://my-web
 ```
 
 ```console
-powershell.exe -ExecutionPolicy Bypass .\thor-seed.ps1 -AsgardServer asgard1.internal -Token 74y47Wjw3wWRKlmBu4EUWFzGY-QWgdmzRZ -IgnoreSSLErrors
+powershell.exe -ExecutionPolicy Bypass .\thor-seed.ps1 -ManagementCenter mgmt-center.internal -Token 74y47Wjw3wWRKlmBu4EUWFzGY-QWgdmzRZ -IgnoreSSLErrors
 ```
 
 ### Exit Codes
