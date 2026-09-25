@@ -1,8 +1,8 @@
 # License retrieval script
 # Florian Roth, June 2021
 
-# ASGARD URL
-$AsgardURL = "https://asgard.nextron-systems.com:8443/api/v0/licensing/issue"
+# Management Center URL
+$MgmtCntURL = "https://mgmt-center.nextron-systems.com:8443/api/v0/licensing/issue"
 $Token = ""
 $LicenseFile = "licenses.zip"
 $OutputPath = ".\"
@@ -18,9 +18,9 @@ $ExtractLicenses = $True
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $WebClient = New-Object System.Net.WebClient 
 if ( $Token ) {
-    $AsgardURL = [string]::Format("{0}?token={1}", $AsgardURL, $Token)
+    $MgmtCntURL = [string]::Format("{0}?token={1}", $MgmtCntURL, $Token)
 }
-Write-Host "Using URL: $AsgardURL"
+Write-Host "Using URL: $MgmtCntURL"
 
 # Hostname
 $Hostname = $env:COMPUTERNAME
@@ -44,7 +44,7 @@ Write-Host "Requesting license for HOST: $Hostname TYPE: $LicenseType"
 
 # Request license
 try {
-    $Response = $WebClient.UploadValues($AsgardURL, $postData)
+    $Response = $WebClient.UploadValues($MgmtCntURL, $postData)
 # HTTP Errors
 } catch [System.Net.WebException] {
     Write-Host "The following error occurred: $_"

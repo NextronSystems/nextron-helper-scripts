@@ -2,17 +2,17 @@
 SETLOCAL EnableDelayedExpansion
 
 REM Configuration
-SET ASGARD_HOST=asgard.nextron-systems.com
+SET MGMTCNT_HOST=mgmt-center.nextron-systems.com
 SET API_KEY="not set"
 
-ECHO =============================================
-ECHO  Bulk License Generator for ASGARD v2
+ECHO ================================================
+ECHO  Bulk License Generator for Management Center v2
 ECHO  Florian Roth v1.0, Win10 Version using Curl
-ECHO =============================================
+ECHO ================================================
 ECHO. 
 
 IF %API_KEY% == "not set" (
-    ECHO Error: No API key set. Open this batch file with a text editor and set your asgard host and api key in the configurtaion section. You can find your API Key in User Settings > API Key.
+    ECHO Error: No API key set. Open this batch file with a text editor and set your management center host and api key in the configuration section. You can find your API Key in User Settings > API Key.
     EXIT /b 1
 )
 
@@ -29,7 +29,7 @@ IF NOT EXIST %CD%\hostnames.txt (
 
 FOR /F "tokens=*" %%A in (%CD%\hostnames.txt) DO (
     ECHO Generating license for %%A ...
-    curl -X POST "https://%ASGARD_HOST%:8443/api/v0/licensing/issue" ^
+    curl -X POST "https://%MGMTCNT_HOST%:8443/api/v0/licensing/issue" ^
     -H "accept: application/octet-stream" ^
     -H "Authorization: %API_KEY%" ^
     -H "Content-Type: application/x-www-form-urlencoded" ^

@@ -13,13 +13,13 @@
     .SYNOPSIS
         The "thor-seed" script downloads THOR and executes it
     .DESCRIPTION
-        The "thor-seed" script downloads THOR from an ASGARD instance, the Nextron cloud or a custom URL and executes THOR on the local system writing log files or transmitting syslog messages to a remote system
-    .PARAMETER AsgardServer
-        Enter the server name (FQDN) or IP address of your ASGARD instance.
+        The "thor-seed" script downloads THOR from an Management Center instance, the Nextron cloud or a custom URL and executes THOR on the local system writing log files or transmitting syslog messages to a remote system
+    .PARAMETER ManagementCenter
+        Enter the server name (FQDN) or IP address of your Management Center instance.
     .PARAMETER UseCloud
-        Use the official Nextron cloud systems instead of an ASGARD instance.
+        Use the official Nextron cloud systems instead of an Management Center instance.
     .PARAMETER Token
-        Download token used when connecting to Nextron's cloud service instead of an ASGARD instance.
+        Download token used when connecting to Nextron's cloud service instead of an Management Center instance.
     .PARAMETER Comment
         A comment that will be transmitted to the Nextron cloud servers and shown in the customer portal for the generated license (only used with -UseCloud).
     .PARAMETER CustomUrl
@@ -49,19 +49,19 @@
     .PARAMETER ProxyCredentials
         Proxy credentials to authenticate. Bye default Empty.
     .EXAMPLE
-        ASGARD examples
+        Management Center examples
 
-        # ASGARD without token (if token enforcement is disabled)
-        thor-seed -AsgardServer asgard1.intranet.local
+        # Management Center without token (if token enforcement is disabled)
+        thor-seed -ManagementCenter mgmt-center1.intranet.local
 
-        # ASGARD with token (if token enforcement is enabled)
-        thor-seed -AsgardServer asgard1.intranet.local -Token 6Nf0Qv8F4jA2sZ9pHk1wY
+        # Management Center with token (if token enforcement is enabled)
+        thor-seed -ManagementCenter mgmt-center1.intranet.local -Token 6Nf0Qv8F4jA2sZ9pHk1wY
 
-        # ASGARD with token and self-signed TLS cert in lab environments
-        thor-seed -AsgardServer asgard1.intranet.local -Token 6Nf0Qv8F4jA2sZ9pHk1wY -IgnoreSSLErrors
+        # Management Center with token and self-signed TLS cert in lab environments
+        thor-seed -ManagementCenter mgmt-center1.intranet.local -Token 6Nf0Qv8F4jA2sZ9pHk1wY -IgnoreSSLErrors
 
-        # ASGARD with Analysis Cockpit upload
-        thor-seed -AsgardServer asgard1.intranet.local -Token 6Nf0Qv8F4jA2sZ9pHk1wY -Cockpit cockpit1.intranet.local -CockpitKey YOUR_API_KEY
+        # Management Center with Analysis Cockpit upload
+        thor-seed -ManagementCenter mgmt-center1.intranet.local -Token 6Nf0Qv8F4jA2sZ9pHk1wY -Cockpit cockpit1.intranet.local -CockpitKey YOUR_API_KEY
     .EXAMPLE
         Nextron cloud examples
 
@@ -77,18 +77,18 @@
         thor-seed -CustomUrl https://web1.server.local/thor/mythor-pack.zip
 
         # Start a scan with custom output path and random delay window
-        thor-seed -AsgardServer asgard1.intranet.local -OutputPath C:\Windows\Temp\thor -RandomDelay 300
+        thor-seed -ManagementCenter mgmt-center1.intranet.local -OutputPath C:\Windows\Temp\thor -RandomDelay 300
 
         # Limit THOR CPU usage to reduce user impact and fan noise
-        thor-seed -AsgardServer asgard1.intranet.local -Token 6Nf0Qv8F4jA2sZ9pHk1wY -CpuLimit 40
+        thor-seed -ManagementCenter mgmt-center1.intranet.local -Token 6Nf0Qv8F4jA2sZ9pHk1wY -CpuLimit 40
 
         # Disable THOR resource safeguards (advanced use only)
-        thor-seed -AsgardServer asgard1.intranet.local -Token 6Nf0Qv8F4jA2sZ9pHk1wY -NoResControl
+        thor-seed -ManagementCenter mgmt-center1.intranet.local -Token 6Nf0Qv8F4jA2sZ9pHk1wY -NoResControl
 
         # Remove THOR output files from previous runs
         thor-seed -Cleanup
     .NOTES
-        You can set a static download token and ASGARD server in this file (see below in the parameters)
+        You can set a static download token and Management Center server in this file (see below in the parameters)
 
         We recommend using the configuration sections in this script to adjust the scan settings.
         It includes presets for scan configs and false positive filters.
@@ -104,17 +104,17 @@
 param
 (
     [Parameter(
-               HelpMessage = 'The ASGARD instance to download THOR from (license will be generated on that instance)')]
+               HelpMessage = 'The Management Center instance to download THOR from (license will be generated on that instance)')]
     [ValidateNotNullOrEmpty()]
-    [Alias('AMC')]
-    [string]$AsgardServer,
+    [Alias('MC')]
+    [string]$ManagementCenter,
 
     [Parameter(HelpMessage = "Use Nextron's cloud to download THOR and generate a license")]
     [ValidateNotNullOrEmpty()]
     [Alias('CP')]
     [switch]$UseCloud,
 
-    [Parameter(HelpMessage = "Set a download token (used with ASGARD and Nextron cloud servers)")]
+    [Parameter(HelpMessage = "Set a download token (used with Management Center and Nextron cloud servers)")]
     [ValidateNotNullOrEmpty()]
     [Alias('T')]
     [string]$Token,
@@ -203,14 +203,14 @@ param
 # Write local log file for THOR Seed script activity
 #[bool]$NoLog = $True
 
-# ASGARD Server (IP or FQDN)
-#[string]$AsgardServer = "asgard.beta.nextron-systems.com"
+# Management Center Server (IP or FQDN)
+#[string]$ManagementCenter = "mgmt-center.beta.nextron-systems.com"
 
 # Use Nextron cloud servers
 #[bool]$UseCloud = $True
 
 # Download Token
-# usable with Nextron cloud servers and ASGARD
+# usable with Nextron cloud servers and Management Center
 #[string]$Token = "YOUR DOWNLOAD TOKEN"
 
 # Comment
@@ -225,7 +225,7 @@ param
 #[string]$CockpitKey = "YOUR ANALYSIS COCKPIT API TOKEN"
 
 # Ignore SSL Errors
-# Helpful when using a local ASGARD instance
+# Helpful when using a local Management Center instance
 #$IgnoreSSLErrors = $True
 
 # Disable THOR resource safeguards (advanced use only)
@@ -362,11 +362,11 @@ $script:CockpitUploadSucceeded = $False
 $script:SummaryGuidance = @()
 
 # Show Help -----------------------------------------------------------
-# No ASGARD server
-if ($Args.Count -eq 0 -and $AsgardServer -eq "" -and $UseCloud -eq $False -and $CustomUrl -eq "")
+# No Management Center server
+if ($Args.Count -eq 0 -and $ManagementCenter -eq "" -and $UseCloud -eq $False -and $CustomUrl -eq "")
 {
     Get-Help $MyInvocation.MyCommand.Definition -Detailed
-    Write-Host -ForegroundColor Yellow 'Note: You must at least define an ASGARD server (-AsgardServer), use the Nextron cloud (-UseCloud) with an download token (-Token) or provide a custom URL to a THOR / THOR Lite ZIP package on a webserver (-CustomUrl)'
+    Write-Host -ForegroundColor Yellow 'Note: You must at least define an Management Center server (-ManagementCenter), use the Nextron cloud (-UseCloud) with an download token (-Token) or provide a custom URL to a THOR / THOR Lite ZIP package on a webserver (-CustomUrl)'
     return
 }
 # Nextron cloud servers but no download token
@@ -710,9 +710,9 @@ if ($AutoDetectPlatform -ne "")
 
 # Report source precedence explicitly when more than one THOR source is configured.
 $RequestedThorSources = @()
-if (-not [string]::IsNullOrEmpty($AsgardServer))
+if (-not [string]::IsNullOrEmpty($ManagementCenter))
 {
-    $RequestedThorSources += "ASGARD (-AsgardServer $AsgardServer)"
+    $RequestedThorSources += "Management Center (-ManagementCenter $ManagementCenter)"
 }
 if ($UseCloud)
 {
@@ -725,15 +725,15 @@ if (-not [string]::IsNullOrEmpty($CustomUrl))
 if ($RequestedThorSources.Count -gt 1)
 {
     $SelectedThorSource = "custom URL (-CustomUrl)"
-    if (-not [string]::IsNullOrEmpty($AsgardServer))
+    if (-not [string]::IsNullOrEmpty($ManagementCenter))
     {
-        $SelectedThorSource = "ASGARD (-AsgardServer $AsgardServer)"
+        $SelectedThorSource = "Management Center (-ManagementCenter $ManagementCenter)"
     }
     elseif ($UseCloud)
     {
         $SelectedThorSource = "Nextron cloud (-UseCloud)"
     }
-    Write-Log "Multiple THOR sources specified: $($RequestedThorSources -join ', '). Using $SelectedThorSource based on precedence: -AsgardServer, then -UseCloud, then -CustomUrl." -Level "Warning"
+    Write-Log "Multiple THOR sources specified: $($RequestedThorSources -join ', '). Using $SelectedThorSource based on precedence: -ManagementCenter, then -UseCloud, then -CustomUrl." -Level "Warning"
 }
 
 # ---------------------------------------------------------------------
@@ -858,9 +858,9 @@ if (-not (Test-OutputPathWritable -Path $OutputPath))
 {
     Set-ExecutionFailure -Reason "Output path is not writable: $OutputPath" -Code 3
 }
-if ($AsgardServer -and [string]::IsNullOrWhiteSpace($Token))
+if ($ManagementCenter -and [string]::IsNullOrWhiteSpace($Token))
 {
-    Write-Log "No download token provided. This can work if your ASGARD does not require download tokens." -Level "Note"
+    Write-Log "No download token provided. This can work if your Management Center does not require download tokens." -Level "Note"
     Write-Log "If the download fails with HTTP 401/403, rerun with -Token <download-token>." -Level "Note"
 }
 
@@ -918,14 +918,14 @@ if (-not $script:ExecutionFailed)
                 $WebClient.Proxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials
             }
             # Download Source
-            # Asgard Instance
-            if ($AsgardServer -ne "")
+            # Management Center Instance
+            if ($ManagementCenter -ne "")
             {
-                Write-Log "Attempting to download THOR from $AsgardServer" -Level "Progress"
-                # Generate download URL - pre ASGARD 2.11
-                #$DownloadUrl = "https://$($AsgardServer):8443/api/v0/downloads/thor/thor10-win?hostname=$($Hostname)&type=$($LicenseType)&iocs=%5B%22default%22%5D&token="
-                # Generate download URL - post ASGARD 2.11
-                $DownloadUrl = "https://$($AsgardServer):8443/api/v1/downloads/thor?os=windows&type=$($LicenseType)&scanner=thor10%40latest&signatures=signatures&hostname=$($Hostname)&token=$($Token)"
+                Write-Log "Attempting to download THOR from $ManagementCenter" -Level "Progress"
+                # Generate download URL - pre Management Center 2.11
+                #$DownloadUrl = "https://$($ManagementCenter):8443/api/v0/downloads/thor/thor10-win?hostname=$($Hostname)&type=$($LicenseType)&iocs=%5B%22default%22%5D&token="
+                # Generate download URL - post Management Center 2.11
+                $DownloadUrl = "https://$($ManagementCenter):8443/api/v1/downloads/thor?os=windows&type=$($LicenseType)&scanner=thor10%40latest&signatures=signatures&hostname=$($Hostname)&token=$($Token)"
             }
             # Netxron Customer Portal
             elseif ($UseCloud)
@@ -957,7 +957,7 @@ if (-not $script:ExecutionFailed)
             }
             else
             {
-                Write-Log 'Download URL cannot be generated (select one of the three options: $AsgardServer, $UseCloud or $CustomUrl)' -Level "Error"
+                Write-Log 'Download URL cannot be generated (select one of the three options: $ManagementCenter, $UseCloud or $CustomUrl)' -Level "Error"
                 Set-ExecutionFailure -Reason "Download URL cannot be generated." -Code 4
                 throw "Download URL cannot be generated."
             }
@@ -1037,9 +1037,9 @@ if (-not $script:ExecutionFailed)
                 {
                     Write-Log "Note: you can find your download token here: https://portal.nextron-systems.com/"
                 }
-                elseif ($AsgardServer)
+                elseif ($ManagementCenter)
                 {
-                    Write-Log "Note: ASGARD token settings and user token can be checked at: https://$($AsgardServer):8443/ui/user-settings#tab-Token"
+                    Write-Log "Note: Management Center token settings and user token can be checked at: https://$($ManagementCenter):8443/ui/user-settings#tab-Token"
                 }
             }
             # 400
