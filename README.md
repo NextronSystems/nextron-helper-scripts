@@ -29,6 +29,13 @@ Language: PowerShell
 
 THOR Seed is a lightweight PowerShell script that facilitates the deployment of THOR in cases in which you can't or don't want to use an agent for a continous compromise assessment.
 
+### THOR Split Scan
+
+Written for: THOR 10 with a Forensic Lab license  
+Language: Python 3
+
+Scans a large directory, for example a file share, as many smaller THOR scans. It starts one scan per folder at a chosen directory level and runs several at a time. Every file is scanned exactly once, and an interrupted run continues where it stopped. See [thor-split-scan](thor-split-scan/README.md).
+
 ## THOR Help
 
 Deprecated, use our [THOR Online Manual](https://thor-manual.nextron-systems.com/en/latest/usage/flags.html).
